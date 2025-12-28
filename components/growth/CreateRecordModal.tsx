@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { MediaUploader } from "./MediaUploader"
 import { TagSelector } from "./TagSelector"
+import { reportError } from "@/lib/global-error-handler"
 
 interface CreateRecordModalProps {
   isOpen: boolean
@@ -41,7 +42,7 @@ export default function CreateRecordModal({ isOpen, onClose, onSubmit }: CreateR
         setTags([...new Set([...tags, ...data.suggestedTags])])
       }
     } catch (error) {
-      console.error("AI分析失败:", error)
+      reportError(error as Error, { component: 'CreateRecordModal', action: 'analyzeContent' })
     } finally {
       setIsAnalyzing(false)
     }

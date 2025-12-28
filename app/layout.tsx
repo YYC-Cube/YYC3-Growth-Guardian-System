@@ -1,10 +1,22 @@
+/**
+ * @file 应用布局文件
+ * @description 定义应用的全局布局结构和元数据配置
+ * @module app/layout
+ * @author YYC
+ * @version 1.0.0
+ * @created 2024-12-07
+ * @updated 2024-12-07
+ */
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import DraggableAIWidget from "@/components/ai-xiaoyu/DraggableAIWidget"
+
 import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { AuthProvider } from "@/hooks/useAuth"
+import ReduxProvider from "@/components/ReduxProvider"
+// import { DatabaseInitializer } from "@/components/DatabaseInitializer"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], display: "swap" })
@@ -95,8 +107,12 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased selection:bg-orange-200 selection:text-orange-900`}>
         <ErrorBoundary>
-          {children}
-          <DraggableAIWidget />
+          <ReduxProvider>
+            <AuthProvider>
+              {/* <DatabaseInitializer /> */}
+              {children}
+            </AuthProvider>
+          </ReduxProvider>
         </ErrorBoundary>
         <Analytics />
         <SpeedInsights />

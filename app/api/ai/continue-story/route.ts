@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
+import { reportError } from "@/lib/global-error-handler"
 
 // 故事风格模板
 const STYLE_TEMPLATES: Record<string, string> = {
@@ -54,8 +55,10 @@ ${userInput ? `孩子新写的内容：${userInput}` : "请开始故事"}
         model: "openai/gpt-4o-mini",
         system: systemPrompt,
         prompt: userPrompt,
-        maxTokens: 1000,
-        temperature: 0.8,
+        settings: {
+          maxTokens: 1000,
+          temperature: 0.8,
+        },
       })
 
       // 解析AI响应
@@ -65,14 +68,14 @@ ${userInput ? `孩子新写的内容：${userInput}` : "请开始故事"}
         return NextResponse.json(parsed)
       }
     } catch (aiError) {
-      console.error("AI生成失败:", aiError)
+      reportError(aiError as Error, { component: 'AIStoryAPI', action: 'generateText', endpoint: '/api/ai/continue-story' })
     }
 
     // 降级：返回模板续写选项
     const defaultOptions = generateDefaultOptions(keywords, style, previousContent)
     return NextResponse.json({ options: defaultOptions })
   } catch (error) {
-    console.error("续写故事错误:", error)
+    reportError(error as Error, { component: 'AIStoryAPI', action: 'continueStory', endpoint: '/api/ai/continue-story' })
     return NextResponse.json({ error: "故事续写失败" }, { status: 500 })
   }
 }
@@ -80,8 +83,8 @@ ${userInput ? `孩子新写的内容：${userInput}` : "请开始故事"}
 // 生成默认续写选项
 function generateDefaultOptions(
   keywords: string[],
-  style: string,
-  previousContent?: string,
+  _style: string,
+  _previousContent?: string,
 ): Array<{ id: string; content: string; direction: string }> {
   const keyword = keywords[0] || "小朋友"
 

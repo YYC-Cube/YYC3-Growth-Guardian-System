@@ -5,13 +5,15 @@ import type React from "react"
 import { motion } from "framer-motion"
 
 interface PageHeaderProps {
-  icon: string
+  icon?: string
   title: string
+  subtitle?: string
+  showBack?: boolean
   actions?: Array<{ icon: string; label: string; onClick?: () => void }>
   children?: React.ReactNode
 }
 
-export default function PageHeader({ icon, title, actions, children }: PageHeaderProps) {
+export default function PageHeader({ icon, title, subtitle, showBack, actions, children }: PageHeaderProps) {
   return (
     <motion.header
       className="w-full px-8 py-4 flex items-center justify-between z-20"
@@ -19,10 +21,18 @@ export default function PageHeader({ icon, title, actions, children }: PageHeade
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-        <i className={`${icon} text-blue-500`} />
-        {title}
-      </h1>
+      <div className="flex items-center gap-3">
+        {showBack && (
+          <button className="text-blue-500 hover:text-blue-600 transition-colors">
+            <i className="fas fa-arrow-left" />
+          </button>
+        )}
+        {icon && <i className={`${icon} text-blue-500`} />}
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800">{title}</h1>
+          {subtitle && <p className="text-slate-600 text-sm">{subtitle}</p>}
+        </div>
+      </div>
 
       {actions && (
         <div className="flex gap-4">

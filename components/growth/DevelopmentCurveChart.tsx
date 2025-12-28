@@ -10,26 +10,37 @@ interface DataPoint {
 }
 
 interface DevelopmentCurveChartProps {
-  childData: DataPoint[]
-  standardData: {
+  dataPoints?: DataPoint[] // 兼容新的props
+  metricName?: string // 兼容新的props
+  childName?: string // 兼容新的props
+  childData?: DataPoint[] // 原props
+  standardData?: {
     p5: DataPoint[] // 5th percentile
     p25: DataPoint[] // 25th percentile
     p50: DataPoint[] // 50th percentile (median)
     p75: DataPoint[] // 75th percentile
     p95: DataPoint[] // 95th percentile
-  }
-  dimension: string
-  title: string
-  unit: string
+  } // 原props
+  dimension?: string // 原props
+  title?: string // 原props
+  unit?: string // 原props
 }
 
 export default function DevelopmentCurveChart({
+  dataPoints,
+  metricName = "身高",
+  childName = "宝宝",
   childData,
   standardData,
   dimension,
   title,
   unit,
 }: DevelopmentCurveChartProps) {
+  // 兼容新旧props
+  const actualChildData = childData || dataPoints || []
+  const actualTitle = title || `${metricName}发展曲线`
+  const actualUnit = unit || "cm"
+  const actualDimension = dimension || metricName
   const [hoveredPoint, setHoveredPoint] = useState<DataPoint | null>(null)
   const [showPercentiles, setShowPercentiles] = useState(true)
 
@@ -40,24 +51,52 @@ export default function DevelopmentCurveChart({
   const chartWidth = width - padding.left - padding.right
   const chartHeight = height - padding.top - padding.bottom
 
+  // 数据验证和清理
+  const validChildData = (actualChildData || []).filter(point =>
+    point &&
+    typeof point.age === 'number' && !isNaN(point.age) && point.age >= 0 &&
+    typeof point.value === 'number' && !isNaN(point.value) && point.value >= 0
+  )
+
   // 计算数据范围
   const allValues = [
-    ...childData.map((d) => d.value),
-    ...(showPercentiles ? [...standardData.p5.map((d) => d.value), ...standardData.p95.map((d) => d.value)] : []),
-  ]
-  const minValue = Math.min(...allValues) * 0.9
-  const maxValue = Math.max(...allValues) * 1.1
-  const maxAge = Math.max(...childData.map((d) => d.age), 36)
+    ...validChildData.map((d) => d.value),
+    ...(showPercentiles && standardData ?
+      [...(standardData.p5 || []).filter(point => point && typeof point.value === 'number' && !isNaN(point.value)).map((d) => d.value),
+       ...(standardData?.p95 || []).filter(point => point && typeof point.value === 'number' && !isNaN(point.value)).map((d) => d.value)]
+      : []),
+  ].filter(value => typeof value === 'number' && !isNaN(value) && value >= 0)
+
+  // 确保有有效数据，如果没有则使用默认范围
+  const minValue = allValues.length > 0 ? Math.min(...allValues) * 0.9 : 0
+  const maxValue = allValues.length > 0 ? Math.max(...allValues) * 1.1 : 100
+  const maxAge = validChildData.length > 0 ? Math.max(...validChildData.map((d) => d.age), 36) : 36
 
   // 坐标转换函数
-  const xScale = (age: number) => (age / maxAge) * chartWidth + padding.left
-  const yScale = (value: number) =>
-    chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight + padding.top
+  const xScale = (age: number) => {
+    if (typeof age !== 'number' || isNaN(age) || age < 0) return padding.left
+    if (maxAge <= 0 || chartWidth <= 0) return padding.left
+    const scaledValue = (age / maxAge) * chartWidth + padding.left
+    return isNaN(scaledValue) ? padding.left : scaledValue
+  }
+  const yScale = (value: number) => {
+    if (typeof value !== 'number' || isNaN(value) || value < 0) return height - padding.bottom
+    if (chartHeight <= 0 || maxValue <= minValue) return height - padding.bottom
+    const scaledValue = chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight + padding.top
+    return isNaN(scaledValue) ? height - padding.bottom : scaledValue
+  }
 
   // 生成路径
   const generatePath = (data: DataPoint[]) => {
-    if (data.length === 0) return ""
-    return data
+    const validData = data.filter(point =>
+      point &&
+      typeof point.age === 'number' && !isNaN(point.age) && point.age >= 0 &&
+      typeof point.value === 'number' && !isNaN(point.value) && point.value >= 0
+    )
+
+    if (validData.length === 0) return ""
+
+    return validData
       .map((point, i) => {
         const x = xScale(point.age)
         const y = yScale(point.value)
@@ -89,9 +128,11 @@ export default function DevelopmentCurveChart({
 
   // 计算孩子在同龄人中的百分位
   const getPercentileRank = (childValue: number, age: number): number => {
-    const p5 = standardData.p5.find((d) => d.age === age)?.value || 0
-    const p50 = standardData.p50.find((d) => d.age === age)?.value || 0
-    const p95 = standardData.p95.find((d) => d.age === age)?.value || 0
+    if (!standardData) return 50 // 默认返回中位数
+
+    const p5 = standardData.p5?.find((d) => d.age === age)?.value || 0
+    const p50 = standardData.p50?.find((d) => d.age === age)?.value || 0
+    const p95 = standardData.p95?.find((d) => d.age === age)?.value || 0
 
     if (childValue <= p5) return 5
     if (childValue >= p95) return 95
@@ -101,7 +142,7 @@ export default function DevelopmentCurveChart({
     return 50 + ((childValue - p50) / (p95 - p50)) * 45
   }
 
-  const latestPoint = childData[childData.length - 1]
+  const latestPoint = validChildData && validChildData.length > 0 ? validChildData[validChildData.length - 1] : null
   const percentileRank = latestPoint ? Math.round(getPercentileRank(latestPoint.value, latestPoint.age)) : null
 
   return (
@@ -109,8 +150,8 @@ export default function DevelopmentCurveChart({
       {/* 标题栏 */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
-          <p className="text-sm text-slate-500">单位: {unit}</p>
+          <h3 className="text-lg font-semibold text-slate-800">{actualTitle}</h3>
+          <p className="text-sm text-slate-500">单位: {actualUnit}</p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -187,38 +228,44 @@ export default function DevelopmentCurveChart({
           {showPercentiles && (
             <>
               {/* 5-95 百分位区间 */}
-              <motion.path
-                d={generateAreaPath(standardData.p95, standardData.p5)}
-                fill="#e0f2fe"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-              />
+              {standardData?.p95 && standardData?.p5 && (
+                <motion.path
+                  d={generateAreaPath(standardData.p95, standardData.p5)}
+                  fill="#e0f2fe"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.5 }}
+                />
+              )}
 
               {/* 25-75 百分位区间 */}
-              <motion.path
-                d={generateAreaPath(standardData.p75, standardData.p25)}
-                fill="#bae6fd"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.6 }}
-              />
+              {standardData?.p75 && standardData?.p25 && (
+                <motion.path
+                  d={generateAreaPath(standardData.p75, standardData.p25)}
+                  fill="#bae6fd"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.6 }}
+                />
+              )}
 
               {/* 中位线 (50%) */}
-              <motion.path
-                d={generatePath(standardData.p50)}
-                fill="none"
-                stroke="#0ea5e9"
-                strokeWidth={2}
-                strokeDasharray="6 4"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1 }}
-              />
+              {standardData?.p50 && (
+                <motion.path
+                  d={generatePath(standardData.p50)}
+                  fill="none"
+                  stroke="#0ea5e9"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1 }}
+                />
+              )}
             </>
           )}
 
           {/* 孩子的发展曲线 */}
           <motion.path
-            d={generatePath(childData)}
+            d={generatePath(validChildData)}
             fill="none"
             stroke="#8b5cf6"
             strokeWidth={3}
@@ -229,7 +276,7 @@ export default function DevelopmentCurveChart({
           />
 
           {/* 数据点 */}
-          {childData.map((point, i) => (
+          {validChildData.map((point, i) => (
             <motion.g key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
               <circle
                 cx={xScale(point.age)}
@@ -264,7 +311,7 @@ export default function DevelopmentCurveChart({
                 textAnchor="middle"
                 className="text-sm font-medium fill-slate-700"
               >
-                {hoveredPoint.value} {unit}
+                {hoveredPoint.value} {actualUnit}
               </text>
               <text
                 x={xScale(hoveredPoint.age)}

@@ -1,7 +1,9 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from 'framer-motion'
+import Link from "next/link"
 import { useChildren } from "@/hooks/useChildren"
 import type { Child } from "@/lib/db/client"
 
@@ -10,29 +12,30 @@ interface ChildSelectorProps {
   className?: string
 }
 
-export default function ChildSelector({ onSelect, className = "" }: ChildSelectorProps) {
+const ChildSelector: React.FC<ChildSelectorProps> = ({ onSelect, className = "" }) => {
   const { children, currentChild, setCurrentChild, isLoading } = useChildren()
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleSelect = (child: Child) => {
+  const handleChildSelect = (child: Child) => {
     setCurrentChild(child)
     onSelect?.(child)
     setIsOpen(false)
   }
 
+  // 只在客户端渲染时显示加载状态，避免水合不匹配
   if (isLoading) {
     return <div className={`h-10 bg-slate-100 rounded-lg animate-pulse ${className}`} />
   }
 
   if (children.length === 0) {
     return (
-      <a
+      <Link
         href="/children"
         className={`flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100 transition ${className}`}
       >
         <i className="ri-add-circle-line" />
         添加孩子
-      </a>
+      </Link>
     )
   }
 
@@ -44,7 +47,7 @@ export default function ChildSelector({ onSelect, className = "" }: ChildSelecto
       >
         {currentChild ? (
           <>
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
               {currentChild.name.charAt(0)}
             </div>
             <span className="text-sm font-medium text-slate-700">{currentChild.name}</span>
@@ -66,12 +69,10 @@ export default function ChildSelector({ onSelect, className = "" }: ChildSelecto
             {children.map((child) => (
               <button
                 key={child.id}
-                onClick={() => handleSelect(child)}
-                className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition ${
-                  currentChild?.id === child.id ? "bg-blue-50" : ""
-                }`}
+                onClick={() => handleChildSelect(child)}
+                className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition ${currentChild?.id === child.id ? "bg-blue-50" : ""}`}
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
                   {child.name.charAt(0)}
                 </div>
                 <span className="text-sm text-slate-700">{child.name}</span>
@@ -80,13 +81,13 @@ export default function ChildSelector({ onSelect, className = "" }: ChildSelecto
             ))}
 
             <div className="border-t border-slate-100">
-              <a
+              <Link
                 href="/children"
                 className="flex items-center gap-2 px-3 py-2 text-blue-600 hover:bg-blue-50 transition text-sm"
               >
                 <i className="ri-settings-3-line" />
                 管理档案
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
@@ -94,3 +95,5 @@ export default function ChildSelector({ onSelect, className = "" }: ChildSelecto
     </div>
   )
 }
+
+export default ChildSelector

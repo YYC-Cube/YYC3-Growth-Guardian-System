@@ -1,9 +1,10 @@
 import { generateText } from "ai"
-import { AI_ROLES, analyzeQueryComplexity, getCoordinatedPrompt } from "@/lib/ai-roles"
+import { AI_ROLES, analyzeQueryComplexity, getCoordinatedPrompt } from "@/lib/ai_roles"
+import { reportError } from "@/lib/global-error-handler"
 
 export async function POST(request: Request) {
   try {
-    const { message, childContext } = await request.json()
+    const { message, _childContext } = await request.json()
 
     if (!message) {
       return Response.json({ error: "消息内容不能为空" }, { status: 400 })
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
       })),
     })
   } catch (error) {
-    console.error("[AI Orchestrate Error]", error)
+    reportError(error as Error, { component: 'AIOrchestratorAPI', action: 'orchestrateResponse', endpoint: '/api/ai/orchestrate' })
     return Response.json({ error: "AI协同响应失败，请稍后重试" }, { status: 500 })
   }
 }

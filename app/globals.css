@@ -165,3 +165,6 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* 全局UI组件统一化样式 - 彩色边线阴影效果 */
+@import '../styles/global-ui-enhancements.css';

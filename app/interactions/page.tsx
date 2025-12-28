@@ -22,13 +22,13 @@ type ViewMode = "timeline" | "stats" | "calendar"
 type FilterType = "all" | InteractionType
 
 export default function InteractionsPage() {
-  const [viewMode, setViewMode] = useState<ViewMode>("timeline")
+  const [_viewMode, _setViewMode] = useState<ViewMode>("timeline")
   const [filterType, setFilterType] = useState<FilterType>("all")
   const [showEditor, setShowEditor] = useState(false)
   const [editingRecord, setEditingRecord] = useState<InteractionRecord | null>(null)
 
   const { currentChild } = useChildren()
-  const { interactions, isLoading, stats, addInteraction, updateInteraction, deleteInteraction } = useInteractions()
+  const { interactions, isLoading: _isLoading, stats, addInteraction, updateInteraction, deleteInteraction } = useInteractions()
 
   const filteredInteractions = useMemo(() => {
     if (filterType === "all") return interactions

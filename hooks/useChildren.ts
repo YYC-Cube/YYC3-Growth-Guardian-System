@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { db, type Child } from "@/lib/db/client"
 
 interface UseChildrenReturn {
@@ -38,7 +38,7 @@ export function useChildren(userId?: string): UseChildrenReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [userId, currentChild])
+  }, [userId])
 
   useEffect(() => {
     loadChildren()

@@ -1,265 +1,701 @@
-# YYC³ AI小语智能成长守护系统
+# YYC³ 智能插拔式移动AI系统
 
-> 0-22岁全周期AI智能成长守护平台 | 五大AI角色陪伴 | 公益学习·温暖成长
+<div align="center">
 
-## 项目简介
+![YYC³ Logo](https://img.shields.io/badge/YYC³-智能插拔式移动AI系统-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.0.0-green?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
+![Bun](https://img.shields.io/badge/runtime-Bun-black?style=for-the-badge)
 
-YYC³（YanYuCloudCube - 言语云立方）是一个创新的AI驱动成长守护系统，致力于为0-22岁的孩子提供全方位、个性化的成长陪伴和指导。
+**Intelligent Pluggable Mobile AI System**
 
-### 核心特色
+基于事件驱动+目标驱动混合架构的智能插拔式移动AI系统，支持动态工具注册、知识库管理、多模态AI交互和微服务部署。
 
-- **五大AI角色**：记录者、守护者、聆听者、建议者、国粹导师
-- **全周期守护**：覆盖0-22岁七个关键发展阶段
-- **五高体系**：高前瞻性、高整合性、高个性化、高情感价值、高实操性
-- **多模态交互**：文本、语音、视觉融合的智能对话
-- **科学评估**：基于发展心理学的多维度成长评估
+[快速开始](#快速开始) • [功能特性](#功能特性) • [系统架构](#系统架构) • [API文档](#api文档) • [部署指南](#部署指南)
 
-## 技术栈
+</div>
 
-### 前端
-- **框架**: Next.js 16 (App Router)
-- **UI库**: React 19.2 + TypeScript
-- **样式**: Tailwind CSS v4
-- **动画**: Framer Motion
-- **组件**: Radix UI
-- **图标**: Remix Icon
+## 📋 目录
 
-### AI能力
-- **AI SDK**: Vercel AI SDK v5
-- **模型支持**: OpenAI GPT-4, xAI Grok, Groq
-- **语音**: Azure Speech Service
-- **多模态**: 文本 + 语音 + 视觉融合
+- [项目概述](#项目概述)
+- [功能特性](#功能特性)
+- [系统架构](#系统架构)
+- [技术栈](#技术栈)
+- [快速开始](#快速开始)
+- [开发指南](#开发指南)
+- [部署指南](#部署指南)
+- [API文档](#api文档)
+- [配置说明](#配置说明)
+- [监控与运维](#监控与运维)
+- [贡献指南](#贡献指南)
+- [许可证](#许可证)
 
-### 后端
-- **数据库**: Supabase (PostgreSQL)
-- **认证**: Supabase Auth
-- **存储**: Vercel Blob
-- **缓存**: Redis (Upstash)
+## 🎯 项目概述
 
-### 部署
-- **平台**: Vercel
-- **分析**: Vercel Analytics + Speed Insights
-- **监控**: 内置性能监控
+YYC³智能插拔式移动AI系统是一个现代化的、可扩展的AI服务平台，采用微服务架构和容器化部署，提供：
 
-## 快速开始
+- **智能拖拽AI组件** - 支持React DnD的可拖拽AI助手
+- **事件驱动核心引擎** - 混合事件驱动和目标驱动架构
+- **动态工具生态** - 自动工具发现与注册系统
+- **RAG知识库** - 向量存储和检索增强生成
+- **多模态交互** - 文本、语音、图像、文件全支持
+- **微服务架构** - 完整的服务编排和API网关
+- **实时学习系统** - 三层学习架构（行为、策略、知识）
+
+## ✨ 功能特性
+
+### 🤖 智能AI助手
+
+- **拖拽式界面** - 基于React DnD的智能组件
+- **多视图切换** - 对话、工具、洞察多模式
+- **位置优化** - 自动最佳位置计算
+- **实时任务监控** - 动态任务状态跟踪
+
+### 🧠 核心系统引擎
+
+- **AgenticCore** - 事件驱动+目标驱动混合架构
+- **ServiceOrchestrator** - 微服务编排与协调
+- **GoalManagementSystem** - 目标生命周期管理
+- **MetaLearningSystem** - 三层智能学习架构
+
+### 🛠️ 工具与知识系统
+
+- **ToolManager** - 动态工具发现与注册
+- **KnowledgeManager** - RAG知识库管理
+- **APIGateway** - 统一API网关与负载均衡
+- **向量数据库** - 高效相似度搜索
+
+### 🎨 多模态交互
+
+- **文本对话** - 智能回复与上下文理解
+- **语音识别** - 实时语音转文字
+- **图像处理** - 视觉内容理解与分析
+- **文件上传** - 多格式文件智能处理
+
+### 🏗️ 基础设施
+
+- **容器化部署** - Docker + Docker Compose
+- **微服务架构** - 服务发现与健康检查
+- **实时通信** - WebSocket双向通信
+- **监控告警** - Prometheus + Grafana + Jaeger
+
+## 🏗️ 系统架构
+
+```mermaid
+graph TB
+    subgraph "前端层"
+        A[智能AI组件] --> B[React应用]
+        B --> C[拖拽界面]
+    end
+
+    subgraph "API网关层"
+        D[API Gateway] --> E[负载均衡]
+        D --> F[认证授权]
+        D --> G[限流熔断]
+    end
+
+    subgraph "服务层"
+        H[AgenticCore] --> I[事件处理]
+        J[ToolManager] --> K[工具注册]
+        L[KnowledgeManager] --> M[RAG检索]
+        N[GoalManager] --> O[目标管理]
+        P[MetaLearning] --> Q[学习系统]
+    end
+
+    subgraph "数据层"
+        R[PostgreSQL] --> S[关系数据]
+        T[Redis] --> U[缓存会话]
+        V[Elasticsearch] --> W[搜索索引]
+        X[VectorDB] --> Y[向量存储]
+    end
+
+    A --> D
+    D --> H
+    D --> J
+    D --> L
+    D --> N
+    D --> P
+
+    H --> R
+    J --> T
+    L --> V
+    L --> X
+    N --> R
+    P --> R
+```
+
+### 核心组件
+
+| 组件 | 功能 | 状态 |
+|------|------|------|
+| **AgenticCore** | 事件驱动核心引擎 | ✅ 完成 |
+| **ServiceOrchestrator** | 服务编排管理 | ✅ 完成 |
+| **ToolManager** | 工具注册发现 | ✅ 完成 |
+| **KnowledgeManager** | RAG知识库 | ✅ 完成 |
+| **APIGateway** | 统一API网关 | ✅ 完成 |
+| **IntelligentWidget** | 智能拖拽组件 | ✅ 完成 |
+| **EnhancedAIGirl** | 增强AI助手 | ✅ 完成 |
+
+## 🛠️ 技术栈
+
+### 前端技术
+
+- **React 19.2.3** - 用户界面框架
+- **Next.js 14.2.35** - React应用框架
+- **TypeScript 5** - 类型安全的JavaScript
+- **TailwindCSS 4.1.9** - 原子化CSS框架
+- **Radix UI** - 无样式组件库（包含完整的UI组件集合）
+- **Framer Motion 12.23.25** - 动画库
+- **React DnD 16.0.1** - 拖拽功能库
+- **React Beautiful DnD 13.1.1** - 拖拽功能库
+- **Lucide React 0.454.0** - 图标库
+- **React Icons 5.5.0** - 图标库
+- **React Hook Form 7.60.0** - 表单处理
+- **Zod 3.25.76** - 数据验证
+- **TanStack React Query 5.56.2** - 数据获取和状态管理
+- **Redux Toolkit 2.11.2** - 状态管理
+- **Redux Persist 6.0.0** - 状态持久化
+- **SWR** - 数据获取库
+- **next-intl 4.6.1** - 国际化支持
+- **next-themes 0.4.6** - 主题管理
+- **date-fns 4.1.0** - 日期处理
+- **React Dropzone 14.3.8** - 文件上传
+- **React Toastify 11.0.5** - 通知提示
+- **Sonner 1.7.4** - 通知组件
+- **Recharts 2.15.4** - 图表库
+- **Embla Carousel 8.5.1** - 轮播组件
+- **React Day Picker 9.8.0** - 日期选择器
+- **Vaul 1.1.2** - 抽屉组件
+- **React Resizable Panels 2.1.7** - 可调整面板
+
+### 后端技术
+
+- **Bun 1.1.38** - 高性能JavaScript运行时
+- **Node.js >= 18.0.0** - 服务端JavaScript
+- **Hono 4.6.3** - 轻量级Web框架
+- **@hono/node-server 1.19.7** - Hono Node.js服务器适配器
+- **Socket.io 4.8.0** - 实时通信
+- **Socket.io Client 4.8.0** - Socket.io客户端
+- **WS 8.18.0** - WebSocket库
+- **PostgreSQL (pg 8.13.0)** - 关系型数据库
+- **Redis (ioredis 5.4.1)** - 内存数据库
+- **Redis (redis 4.7.0)** - Redis客户端
+- **SQLite (sqlite3 5.1.7)** - 轻量级数据库
+- **SQL.js 1.12.0** - 纯JavaScript SQLite实现
+- **JWT (jsonwebtoken 9.0.2)** - JSON Web Token认证
+
+### AI/ML技术
+
+- **OpenAI API 4.67.1** - GPT模型集成
+- **AI SDK 5.0.115** - Vercel AI SDK
+- **@ai-sdk/openai 1.0.2** - OpenAI AI SDK
+- **TensorFlow.js 4.22.0** - 机器学习库
+- **@tensorflow-models/universal-sentence-encoder 1.3.3** - 通用句子编码器
+- **RAG架构** - 检索增强生成
+
+### 开发工具
+
+- **ESLint 9.0.0** - 代码检查
+- **Prettier 3.3.2** - 代码格式化
+- **Biome 1.9.4** - 代码格式化和检查工具
+- **TypeScript ESLint 8.0.0** - TypeScript代码检查
+- **Testing Library** - React测试库
+  - @testing-library/react 16.3.0
+  - @testing-library/jest-dom 6.9.1
+  - @testing-library/user-event 14.6.1
+  - @testing-library/dom 10.4.1
+- **Jest** - 测试框架
+- **jsdom 27.3.0** - DOM模拟
+- **PostCSS 8.5** - CSS处理
+- **Autoprefixer 10.4.20** - CSS自动前缀
+
+### 基础设施
+
+- **Docker** - 容器化技术
+- **Docker Compose** - 容器编排
+- **Nginx** - 反向代理
+- **Vercel Analytics** - 分析和监控
+- **Vercel Speed Insights** - 性能监控
+
+## 🚀 快速开始
 
 ### 环境要求
 
-- Node.js 18+
-- npm 或 pnpm
+- **Bun** >= 1.0.0
+- **Node.js** >= 18.0.0
+- **Docker** >= 20.0.0
+- **Docker Compose** >= 2.0.0
 
-### 安装步骤
+### 一键部署
 
-1. 克隆项目
-\`\`\`bash
-git clone <repository-url>
-cd yyc3-ai-growth
-\`\`\`
+```bash
+# 克隆项目
+git clone https://github.com/yyc3/xy-ai.git
+cd yyc3-xy-ai
 
-2. 安装依赖
-\`\`\`bash
-npm install
-\`\`\`
-
-3. 配置环境变量
-\`\`\`bash
+# 配置环境变量
 cp .env.example .env.local
-# 编辑 .env.local 填入您的API密钥
-\`\`\`
+# 编辑 .env.local 填入必要的配置
 
-4. 启动开发服务器
-\`\`\`bash
-npm run dev
-\`\`\`
+# 一键部署
+chmod +x deploy.sh
+./deploy.sh deploy
+```
 
-5. 访问应用
-打开浏览器访问 `http://localhost:3000`
+### 开发环境启动
 
-## 项目结构
+```bash
+# 安装依赖
+bun install
 
-\`\`\`
-yyc3-ai-growth/
-├── app/                      # Next.js App Router
-│   ├── page.tsx             # 首页
-│   ├── homework/            # 作业页面
-│   ├── courses/             # 课程页面
-│   ├── activities/          # 公益活动
-│   ├── messages/            # 消息中心
-│   ├── growth/              # 成长记录
-│   ├── settings/            # 设置
-│   └── api/                 # API路由
-│       ├── ai/              # AI对话接口
-│       ├── homework/        # 作业管理
-│       └── growth-records/  # 成长记录
-├── components/              # React组件
-│   ├── ai-xiaoyu/          # AI小语浮窗系统
-│   ├── headers/            # 页面头部组件
-│   └── Navigation.tsx      # 底部导航
-├── hooks/                   # 自定义Hooks
-│   ├── useAIXiaoyu.ts      # AI小语状态管理
-│   ├── useHomework.ts      # 作业数据管理
-│   └── useGrowthRecords.ts # 成长记录管理
-├── lib/                     # 工具库
-│   ├── ai-roles.ts         # AI角色配置
-│   ├── growth-stages.ts    # 成长阶段定义
-│   ├── speech.ts           # 语音服务
-│   └── db/                 # 数据库客户端
-├── types/                   # TypeScript类型定义
-├── scripts/                 # 数据库脚本
-└── docs/                    # 项目文档
-\`\`\`
+# 启动开发服务器（Next.js应用）
+bun run dev:next
 
-## 核心功能
+# 启动主服务（Bun服务）
+bun run dev
 
-### 1. AI小语智能助手
+# 启动特定服务
+bun run orchestrator  # 服务编排
+bun run gateway       # API网关
+bun run agentic       # Agentic核心
+```
 
-全局悬浮AI助手，提供：
-- 智能对话（五大角色切换）
-- 语音交互（语音输入/输出）
-- 全局控制（页面导航、功能操作）
-- 情感分析（情绪识别、智能建议）
-- 智能预测（学习预测、目标预估）
+### 访问地址
 
-快捷键：`Ctrl + K` 唤醒AI小语
+- **主应用**: <http://localhost:1228> (Next.js应用，项目专用端口)
+- **API网关**: <http://localhost:1229> (项目专用端口)
+- **Nginx代理**: <http://localhost>
 
-### 2. 成长守护体系
+## 📖 开发指南
 
-七大发展阶段全覆盖：
-- 0-3岁：感官启蒙期
-- 3-6岁：游戏化学习期
-- 6-9岁：学术奠基期
-- 9-12岁：思维建构期
-- 12-15岁：青春转型期
-- 15-18岁：生涯定位期
-- 18-22岁：成人成才期
+### 项目结构
 
-### 3. 成长记录系统
+```
+yyc3-xy-ai/
+├── .github/            # GitHub Actions工作流配置
+├── .trae/              # Trae IDE配置和规则
+│   └── rules/          # 项目规则文档
+├── __mocks__/          # 模拟数据
+├── __tests__/          # 测试文件
+├── analytics/          # 分析和监控模块
+│   └── dashboard/      # 监控仪表板
+├── app/                # Next.js应用目录
+│   ├── (auth)/         # 认证相关页面
+│   ├── (main)/         # 主应用页面
+│   ├── api/            # API路由
+│   ├── layout.tsx      # 根布局
+│   └── page.tsx        # 首页
+├── assets/             # 静态资源
+├── backend/            # 后端服务
+│   ├── services/       # 后端服务模块
+│   └── package.json    # 后端依赖
+├── components/         # React组件
+│   ├── ai-widget/      # 智能AI组件
+│   ├── ai-xiaoyu/      # 小语AI助手
+│   ├── ui/             # UI基础组件
+│   └── ...             # 其他业务组件
+├── config/             # 配置文件
+├── core/               # 核心引擎
+│   ├── agents/         # AI代理
+│   ├── knowledge/      # 知识库管理
+│   ├── learning/       # 学习系统
+│   ├── orchestrator/   # 服务编排
+│   ├── prediction/     # 预测服务
+│   └── tools/          # 工具管理
+├── docs/               # 文档目录
+│   ├── 00-文档索引.md  # 文档总索引
+│   ├── 01-TECH_STACK.md # 技术栈文档
+│   ├── 01-项目架构规范.md # 架构规范
+│   ├── 02-API接口文档.md # API文档
+│   ├── 03-组件开发规范.md # 组件规范
+│   ├── 04-CODE_STYLE.md # 代码风格
+│   ├── 05-项目架构总览.md # 架构总览
+│   ├── YYC3-XY-设计类/ # 设计文档
+│   ├── YYC3-XY-开发类/ # 开发文档
+│   ├── YYC3-XY-管理类/ # 管理文档
+│   └── ...             # 其他文档
+├── hooks/              # React Hooks
+├── lib/                # 工具库
+├── public/             # 公共静态资源
+├── scripts/            # 脚本文件
+├── styles/             # 样式文件
+├── types/              # TypeScript类型定义
+├── utils/              # 工具函数
+├── .env.docker         # Docker环境变量
+├── .env.example        # 环境变量示例
+├── .gitignore          # Git忽略文件
+├── .prettierrc         # Prettier配置
+├── .yarnrc.yml         # Yarn配置
+├── Dockerfile          # Docker配置
+├── deploy.sh           # 部署脚本
+├── docker-compose.yml  # Docker Compose配置
+├── next.config.ts      # Next.js配置
+├── package.json        # 项目依赖
+├── tsconfig.json       # TypeScript配置
+└── README.md           # 项目说明
+```
 
-多维度记录孩子成长：
-- 里程碑事件
-- 日常观察日志
-- 情感记录
-- 成就徽章
+### 文档索引
 
-### 4. 智能评估系统
+项目文档按照以下结构组织：
 
-科学多维度评估：
-- 认知能力
-- 语言能力
-- 运动能力
-- 社交能力
-- AI智能分析与建议
+#### 核心文档
+- [文档索引](docs/00-文档索引.md) - 完整的文档索引和管理规范
+- [技术栈文档](docs/01-TECH_STACK.md) - 项目技术栈详细说明
+- [项目架构规范](docs/01-项目架构规范.md) - 系统架构设计规范
+- [API接口文档](docs/02-API接口文档.md) - API接口详细说明
+- [组件开发规范](docs/03-组件开发规范.md) - 组件开发指南
+- [代码风格规范](docs/04-CODE_STYLE.md) - 代码风格和格式规范
+- [项目架构总览](docs/05-项目架构总览.md) - 整体架构概览
 
-### 5. 作业与课程管理
+#### 设计文档 (YYC3-XY-设计类/)
+- 角色信息管理器技术文档
+- AI智能浮窗系统设计
+- AI智能插拔式核心机制
+- 0-3成长守护白皮书
+- 0-3阶段深度设计与开发方案
 
-高效学习管理：
-- 作业任务追踪
-- 课程进度管理
-- 智能提醒
-- 优先级管理
+#### 开发文档 (YYC3-XY-开发类/)
+- 开发指南和最佳实践
+- 测试规范和流程
+- 部署指南
+- 故障排除指南
 
-## 环境变量配置
+#### 管理文档 (YYC3-XY-管理类/)
+- 项目管理规范
+- 团队协作指南
+- 版本发布流程
+- 质量保证标准
 
-详见 `.env.example` 文件，主要配置项：
+#### AI闭环式文库
+- AI智能浮窗系统
+- AI智能移动可插拔
+- AI浮窗可拖拽智呼系统
+- AI浮窗系统设计
+- Music音乐系统
+- OPEN-API文档
 
-| 变量名 | 说明 | 必需 |
-|--------|------|------|
-| `OPENAI_API_KEY` | OpenAI API密钥 | 是 |
-| `AZURE_SPEECH_KEY` | Azure语音服务密钥 | 是 |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase项目URL | 推荐 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase匿名密钥 | 推荐 |
+详细文档请参考 [docs/00-文档索引.md](docs/00-文档索引.md)
 
-## 部署指南
+### 开发工作流
 
-### Vercel部署（推荐）
+1. **功能开发**
 
-1. 安装Vercel CLI
-\`\`\`bash
-npm i -g vercel
-\`\`\`
+   ```bash
+   # 创建功能分支
+   git checkout -b feature/new-feature
 
-2. 登录Vercel
-\`\`\`bash
-vercel login
-\`\`\`
+   # 开发和测试
+   bun run dev:next
+   bun test
+   ```
 
-3. 部署项目
-\`\`\`bash
-vercel --prod
-\`\`\`
+2. **代码质量**
 
-4. 在Vercel Dashboard配置环境变量
+   ```bash
+   # 类型检查
+   bun run type-check
 
-### Docker部署
+   # 代码检查
+   bun run lint
 
-\`\`\`bash
-docker build -t yyc3-ai-growth .
-docker run -p 3000:3000 yyc3-ai-growth
-\`\`\`
+   # 代码格式化
+   bun run format
+   ```
 
-## 开发指南
+3. **构建部署**
+
+   ```bash
+   # 构建Next.js应用
+   bun run build:next
+
+   # 构建主服务
+   bun run build
+
+   # 部署
+   ./deploy.sh deploy
+   ```
+
+### 组件开发
+
+#### 创建新的AI工具
+
+```typescript
+// core/tools/example-tool.ts
+import { Tool, ToolResult } from '@/types/tools';
+
+export class ExampleTool implements Tool {
+  id = 'example-tool';
+  name = '示例工具';
+  description = '这是一个示例工具';
+  version = '1.0.0';
+
+  async execute(input: any): Promise<ToolResult> {
+    // 工具执行逻辑
+    return {
+      success: true,
+      data: '处理结果',
+      metadata: {}
+    };
+  }
+
+  async validate(input: any): Promise<boolean> {
+    // 输入验证逻辑
+    return true;
+  }
+}
+```
+
+#### 注册工具
+
+```typescript
+// core/tools/ToolManager.ts
+import { ExampleTool } from './example-tool';
+
+const toolManager = new ToolManager();
+await toolManager.registerTool(new ExampleTool());
+```
+
+## 📦 部署指南
+
+### 生产环境部署
+
+1. **服务器要求**
+   - CPU: 4核心以上
+   - 内存: 8GB以上
+   - 存储: 100GB以上
+   - 网络: 100Mbps以上
+
+2. **部署步骤**
+
+   ```bash
+   # 克隆代码
+   git clone https://github.com/yyc3/xy-ai.git
+   cd yyc3-xy-ai
+
+   # 配置环境变量
+   cp .env.example .env.local
+   # 编辑配置文件
+
+   # 部署服务
+   ./deploy.sh deploy
+   ```
+
+3. **SSL配置**
+
+   ```bash
+   # 将SSL证书放置到配置目录
+   mkdir -p config/nginx/ssl
+   cp your-cert.pem config/nginx/ssl/cert.pem
+   cp your-key.pem config/nginx/ssl/key.pem
+   ```
+
+### 监控配置
+
+系统集成了完整的监控方案：
+
+- **Vercel Analytics** - 应用分析和用户行为追踪
+- **Vercel Speed Insights** - 性能监控和优化建议
+
+访问监控面板：
+
+- Vercel Analytics: 通过Vercel Dashboard访问
+- Vercel Speed Insights: 通过Vercel Dashboard访问
+
+## 📚 API文档
+
+### 核心API端点
+
+#### 健康检查
+
+```http
+GET /api/health
+```
+
+#### AI对话
+
+```http
+POST /api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "用户消息",
+  "context": "对话上下文",
+  "mode": "chat|voice|image"
+}
+```
+
+#### 工具调用
+
+```http
+POST /api/tools/{toolId}/execute
+Content-Type: application/json
+
+{
+  "input": "工具输入参数",
+  "options": {}
+}
+```
+
+#### 知识检索
+
+```http
+POST /api/knowledge/search
+Content-Type: application/json
+
+{
+  "query": "搜索查询",
+  "limit": 10,
+  "threshold": 0.7
+}
+```
+
+### WebSocket事件
+
+#### 连接建立
+
+```javascript
+const socket = io('ws://localhost:1229');
+
+// 监听AI回复
+socket.on('ai-response', (data) => {
+  console.log('AI回复:', data.message);
+});
+
+// 发送用户消息
+socket.emit('user-message', {
+  message: '用户输入',
+  timestamp: Date.now()
+});
+```
+
+## ⚙️ 配置说明
+
+### 环境变量配置
+
+主要配置项说明：
+
+```bash
+# 系统基础配置
+NODE_ENV=development
+PORT=1229
+
+# AI服务配置
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# 数据库配置
+DATABASE_URL=postgresql://user:pass@localhost:5432/yyc3_ai
+REDIS_URL=redis://localhost:6379
+
+# 向量数据库
+VECTOR_DB_URL=http://localhost:6333
+VECTOR_DIMENSION=1536
+```
+
+完整配置参考 `.env.example` 文件。
+
+### 服务配置
+
+各服务的详细配置：
+
+- **API网关**: 负载均衡、限流、认证
+- **数据库**: PostgreSQL连接池、Redis集群
+- **监控**: Prometheus指标、Grafana仪表板
+- **日志**: 结构化日志、集中收集
+
+## 📊 监控与运维
+
+### 关键指标
+
+- **系统性能**: CPU、内存、磁盘、网络
+- **应用指标**: 请求量、响应时间、错误率
+- **业务指标**: AI调用次数、工具使用率
+- **数据库**: 连接数、查询性能、缓存命中率
+
+### 告警规则
+
+系统预设了以下告警规则：
+
+- 服务不可用
+- 响应时间过长
+- 错误率过高
+- 资源使用率过高
+- 数据库连接异常
+
+### 日志管理
+
+日志级别和输出配置：
+
+```typescript
+// 日志配置示例
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' }),
+    new winston.transports.Console()
+  ]
+});
+```
+
+## 🤝 贡献指南
+
+我们欢迎所有形式的贡献！
+
+### 贡献方式
+
+1. **报告问题** - 提交Issue报告bug或提出建议
+2. **功能开发** - Fork项目并提交Pull Request
+3. **文档改进** - 完善文档和示例
+4. **测试覆盖** - 增加单元测试和集成测试
+
+### 开发流程
+
+1. Fork项目到个人仓库
+2. 创建功能分支: `git checkout -b feature/amazing-feature`
+3. 提交更改: `git commit -m 'Add amazing feature'`
+4. 推送分支: `git push origin feature/amazing-feature`
+5. 提交Pull Request
 
 ### 代码规范
 
-- 使用TypeScript严格模式
-- 遵循ESLint配置
-- 组件使用函数式组件
-- 优先使用Server Components
+- 使用TypeScript进行类型安全开发
+- 遵循ESLint和Prettier配置
+- 编写单元测试覆盖新功能
+- 添加适当的注释和文档
 
-### 添加新页面
+## 📄 许可证
 
-1. 在 `app/` 目录创建新路由文件夹
-2. 添加 `page.tsx` 文件
-3. 在 `Navigation.tsx` 添加导航项
+本项目基于 [MIT许可证](LICENSE) 开源。
 
-### 添加新API
+## 🙏 致谢
 
-1. 在 `app/api/` 创建路由文件
-2. 导出 `GET`/`POST`/`PATCH`/`DELETE` 方法
-3. 使用 `NextResponse` 返回数据
+感谢以下开源项目的支持：
 
-### 性能优化
+- [React](https://reactjs.org/) - 用户界面框架
+- [Bun](https://bun.sh/) - 高性能JavaScript运行时
+- [Docker](https://www.docker.com/) - 容器化技术
+- [OpenAI](https://openai.com/) - AI模型服务
+- [PostgreSQL](https://www.postgresql.org/) - 关系型数据库
 
-- 使用 `loading.tsx` 添加加载状态
-- 使用 `error.tsx` 处理错误
-- 图片使用 Next.js Image 组件
-- 启用代码分割和懒加载
+## 📞 联系我们
 
-## 数据库Schema
-
-数据库结构详见 `scripts/database-schema.sql`
-
-主要表：
-- `users` - 用户信息
-- `children` - 儿童档案
-- `growth_records` - 成长记录
-- `growth_assessments` - 成长评估
-- `ai_conversations` - AI对话记录
-- `homework_tasks` - 作业任务
-- `courses` - 课程信息
-
-## 安全与隐私
-
-- 所有表启用Row Level Security (RLS)
-- 用户数据完全隔离
-- AI对话数据加密存储
-- 符合儿童隐私保护法规
-- 家长完全控制数据访问
-
-## 许可证
-
-MIT License
-
-## 联系方式
-
-- 项目主页: [https://yyc3.app](https://yyc3.app)
-- 技术支持: support@yyc3.app
-- 反馈建议: feedback@yyc3.app
-
-## 致谢
-
-感谢所有为儿童成长守护事业贡献力量的开发者和教育工作者。
+- **项目主页**: <https://github.com/yyc3/yyc3-xy-ai>
+- **问题反馈**: <https://github.com/yyc3/yyc3-xy-ai/issues>
+- **邮箱**: <admin@0379.email>
+- **官网**: <https://yyc3.ai>
 
 ---
 
-**YYC³ - 万象归元于云枢 丨 深栈智启新纪元**
+<div align="center">
+
+**⭐ 如果这个项目对您有帮助，请给我们一个Star！**
+
+Made with ❤️ by YYC³ Team
+
+</div>

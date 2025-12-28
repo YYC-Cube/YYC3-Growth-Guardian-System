@@ -153,7 +153,7 @@ export default function BooksPage() {
               transition={{ delay: index * 0.05 }}
               className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
             >
-              <button onClick={() => handleBookSelect(book.id)} className="w-full text-left">
+              <div onClick={() => handleBookSelect(book.id)} className="w-full text-left cursor-pointer">
                 <div className="relative aspect-[3/4]">
                   <img
                     src={book.coverUrl || "/placeholder.svg"}
@@ -207,7 +207,7 @@ export default function BooksPage() {
                     </span>
                   </div>
                 </div>
-              </button>
+              </div>
             </motion.div>
           ))}
         </div>

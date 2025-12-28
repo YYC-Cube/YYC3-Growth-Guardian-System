@@ -11,6 +11,8 @@ export type StorageKey =
   | "courses"
   | "milestones"
   | "stage_transitions"
+  | "birthdayWishes"
+  | "user_profiles"
 
 // 儿童档案类型
 export interface Child {
@@ -22,6 +24,32 @@ export interface Child {
   gender: "male" | "female" | "other"
   avatar_url?: string
   current_stage?: string
+  created_at: string
+  updated_at?: string
+}
+
+// 用户档案类型
+export interface UserProfile {
+  id: string
+  user_id: string
+  bio?: string
+  interests: string[]
+  age_group: {
+    id: string
+    name: string
+    min_age: number
+    max_age: number
+    description: string
+    characteristics: string[]
+    recommendations: string[]
+  }
+  grade?: string
+  school?: string
+  birthday?: {
+    lunar?: string
+    solar: string
+  }
+  zodiac?: string
   created_at: string
   updated_at?: string
 }
@@ -78,14 +106,27 @@ export interface Milestone {
 
 class LocalStorageDB {
   private getCollection<T>(key: StorageKey): T[] {
-    if (typeof window === "undefined") return []
-    const data = localStorage.getItem(`yyc3_${key}`)
+    const storageKey = `yyc3_${key}`
+    
+    if (typeof window === "undefined") {
+      // 服务器端使用内存存储
+      return this.serverData.get(storageKey) || []
+    }
+    
+    const data = localStorage.getItem(storageKey)
     return data ? JSON.parse(data) : []
   }
 
   private setCollection<T>(key: StorageKey, data: T[]): void {
-    if (typeof window === "undefined") return
-    localStorage.setItem(`yyc3_${key}`, JSON.stringify(data))
+    const storageKey = `yyc3_${key}`
+    
+    if (typeof window === "undefined") {
+      // 服务器端使用内存存储
+      this.serverData.set(storageKey, data)
+      return
+    }
+    
+    localStorage.setItem(storageKey, JSON.stringify(data))
   }
 
   // 查询多条记录
@@ -228,11 +269,32 @@ class LocalStorageDB {
     return { data, total, totalPages }
   }
 
+  // 服务器端数据存储
+  private serverData: Map<string, any> = new Map()
+  
+  // 辅助方法：设置存储值
+  private setStorageValue(key: string, value: any): void {
+    if (typeof window === "undefined") {
+      // 服务器端使用内存存储
+      this.serverData.set(key, value)
+    } else {
+      localStorage.setItem(key, value)
+    }
+  }
+
   // 初始化模拟数据
   async seedMockData(): Promise<void> {
-    if (typeof window === "undefined") return
-
-    const hasData = localStorage.getItem("yyc3_initialized")
+    // 检查是否已初始化
+    const isServer = typeof window === "undefined"
+    const storageKey = "yyc3_initialized"
+    
+    let hasData = false
+    if (isServer) {
+      hasData = this.serverData.has(storageKey)
+    } else {
+      hasData = !!localStorage.getItem(storageKey)
+    }
+    
     if (hasData) return
 
     // 创建模拟用户
@@ -244,21 +306,21 @@ class LocalStorageDB {
       role: "parent",
       created_at: new Date().toISOString(),
     }
-    localStorage.setItem("yyc3_users", JSON.stringify([mockUser]))
+    this.setStorageValue("yyc3_users", JSON.stringify([mockUser]))
 
     // 创建模拟儿童档案
     const mockChild: Child = {
       id: "child-001",
       user_id: "user-001",
-      name: "小云",
-      nickname: "云云",
+      name: "小语",
+      nickname: "小语",
       birth_date: "2018-09-15",
       gender: "female",
       avatar_url: "/placeholder.svg?height=100&width=100",
       current_stage: "6-9岁学术奠基期",
       created_at: new Date().toISOString(),
     }
-    localStorage.setItem("yyc3_children", JSON.stringify([mockChild]))
+    this.setStorageValue("yyc3_children", JSON.stringify([mockChild]))
 
     // 创建模拟作业任务
     const mockHomework = [
@@ -360,7 +422,39 @@ class LocalStorageDB {
     }
     localStorage.setItem("yyc3_growth_assessments", JSON.stringify([mockAssessment]))
 
-    localStorage.setItem("yyc3_initialized", "true")
+    // 创建模拟用户档案
+    const mockUserProfile: UserProfile = {
+      id: "profile-001",
+      user_id: "user-001",
+      bio: "热爱教育，关注孩子全面发展的家长",
+      interests: ["阅读", "旅行", "摄影", "教育心理学"],
+      age_group: {
+        id: "adult_30_40",
+        name: "30-40岁成年人",
+        min_age: 30,
+        max_age: 40,
+        description: "处于事业和家庭稳定期的成年人",
+        characteristics: ["成熟稳重", "责任感强", "注重家庭"],
+        recommendations: ["平衡工作与家庭", "关注个人成长", "培养健康习惯"]
+      },
+      grade: "",
+      school: "",
+      birthday: {
+        lunar: "1990-05-15",
+        solar: "1990-06-08"
+      },
+      zodiac: "双子座",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    localStorage.setItem("yyc3_user_profiles", JSON.stringify([mockUserProfile]))
+
+    // 设置初始化标志
+    if (isServer) {
+      this.serverData.set(storageKey, "true")
+    } else {
+      localStorage.setItem(storageKey, "true")
+    }
   }
 
   // 清除所有数据
@@ -376,6 +470,7 @@ class LocalStorageDB {
       "courses",
       "milestones",
       "stage_transitions",
+      "user_profiles",
     ]
     keys.forEach((key) => localStorage.removeItem(`yyc3_${key}`))
     localStorage.removeItem("yyc3_initialized")
@@ -392,6 +487,7 @@ class LocalStorageDB {
       "homework_tasks",
       "courses",
       "milestones",
+      "user_profiles",
     ]
     const data: Record<string, unknown[]> = {}
     keys.forEach((key) => {

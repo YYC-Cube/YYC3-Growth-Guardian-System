@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/useAuth.tsx"
 import LoginModal from "./LoginModal"
 
 export default function UserCenter() {
   const { user, isLoading, signOut } = useAuth()
+  const router = useRouter()
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
 
@@ -78,10 +80,10 @@ export default function UserCenter() {
               </div>
 
               <div className="p-2">
-                <DropdownItem icon="ri-user-line" label="个人中心" />
+                <DropdownItem icon="ri-user-line" label="个人中心" href="/profile" />
                 <DropdownItem icon="ri-medal-line" label="成长徽章" badge="12" />
                 <DropdownItem icon="ri-history-line" label="学习记录" />
-                <DropdownItem icon="ri-settings-3-line" label="账号设置" />
+                <DropdownItem icon="ri-settings-3-line" label="账号设置" href="/settings" />
               </div>
 
               <div className="p-2 border-t border-slate-100">
@@ -104,9 +106,20 @@ export default function UserCenter() {
   )
 }
 
-function DropdownItem({ icon, label, badge }: { icon: string; label: string; badge?: string }) {
+function DropdownItem({ icon, label, badge, href }: { icon: string; label: string; badge?: string; href?: string }) {
+  const router = useRouter()
+  
+  const handleClick = () => {
+    if (href) {
+      router.push(href)
+    }
+  }
+
   return (
-    <button className="w-full flex items-center justify-between px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg transition text-sm">
+    <button 
+      onClick={handleClick}
+      className="w-full flex items-center justify-between px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg transition text-sm"
+    >
       <div className="flex items-center gap-3">
         <i className={`${icon} text-slate-400`} />
         {label}

@@ -13,17 +13,18 @@ import AssessmentReport from "@/components/growth/AssessmentReport"
 import ChildSelector from "@/components/ChildSelector"
 import { useGrowthStage } from "@/hooks/useGrowthStage"
 import { useChildren } from "@/hooks/useChildren"
+import { ChildQVersionAvatar } from "@/components/ui/QVersionCharacter"
 
 type TabType = "overview" | "timeline" | "records" | "assessment"
 
 // 模拟发展数据点
 const mockDevelopmentData = [
-  { month: 72, percentile: 55, value: 115 },
-  { month: 73, percentile: 58, value: 116.5 },
-  { month: 74, percentile: 60, value: 117.2 },
-  { month: 75, percentile: 62, value: 118.5 },
-  { month: 76, percentile: 65, value: 119.8 },
-  { month: 77, percentile: 63, value: 120.5 },
+  { age: 72, value: 115, date: "2023-01-15", percentile: 55 },
+  { age: 73, value: 116.5, date: "2023-02-15", percentile: 58 },
+  { age: 74, value: 117.2, date: "2023-03-15", percentile: 60 },
+  { age: 75, value: 118.5, date: "2023-04-15", percentile: 62 },
+  { age: 76, value: 119.8, date: "2023-05-15", percentile: 65 },
+  { age: 77, value: 120.5, date: "2023-06-15", percentile: 63 },
 ]
 
 // 模拟评估结果
@@ -62,7 +63,8 @@ export default function GrowthPage() {
   const childBirthDate = currentChild?.birth_date ? new Date(currentChild.birth_date) : new Date("2018-09-15")
   const childName = currentChild?.name || "小云"
 
-  const { stage, milestoneProgress, stageTransition, recommendations } = useGrowthStage(childBirthDate)
+  const growthStageData = useGrowthStage(childBirthDate)
+  const { stage, milestoneProgress, stageTransition, recommendations } = growthStageData as any
 
   const tabs = [
     { id: "overview" as const, label: "总览", icon: "ri-dashboard-line" },
@@ -82,13 +84,11 @@ export default function GrowthPage() {
       <main className="px-4 py-4 space-y-6">
         {currentChild && (
           <div className="bg-white/70 rounded-2xl p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-              {currentChild.name.charAt(0)}
-            </div>
+            <ChildQVersionAvatar child={currentChild as any} size="md" />
             <div className="flex-1">
               <h3 className="font-bold text-slate-800">{currentChild.name}的成长记录</h3>
               <p className="text-sm text-slate-500">
-                {stage?.name} · {currentChild.age_years || 0}岁{currentChild.age_months || 0}个月
+                {stage?.name} · {(currentChild as any).age_years || 0}岁{(currentChild as any).age_months || 0}个月
               </p>
             </div>
             <ChildSelector />
@@ -162,10 +162,10 @@ export default function GrowthPage() {
 }
 
 interface OverviewTabProps {
-  stage: ReturnType<typeof useGrowthStage>["stage"]
-  milestoneProgress: ReturnType<typeof useGrowthStage>["milestoneProgress"]
-  stageTransition: ReturnType<typeof useGrowthStage>["stageTransition"]
-  recommendations: ReturnType<typeof useGrowthStage>["recommendations"]
+  stage: any
+  milestoneProgress: any
+  stageTransition: any
+  recommendations: any
   childName: string
   childBirthDate: Date
 }
@@ -278,7 +278,7 @@ function OverviewTab({
               <div>
                 <h4 className="text-sm font-medium text-slate-700 mb-2">推荐活动</h4>
                 <ul className="space-y-1">
-                  {recommendations.activities.slice(0, 3).map((activity, i) => (
+                  {recommendations.activities.slice(0, 3).map((activity: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                       <i className="ri-play-circle-line text-green-500 mt-0.5" />
                       {activity}
@@ -291,7 +291,7 @@ function OverviewTab({
               <div>
                 <h4 className="text-sm font-medium text-slate-700 mb-2">推荐阅读</h4>
                 <ul className="space-y-1">
-                  {recommendations.books.slice(0, 2).map((book, i) => (
+                  {recommendations.books.slice(0, 2).map((book: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                       <i className="ri-book-line text-blue-500 mt-0.5" />
                       {book}
@@ -434,15 +434,13 @@ function AssessmentTab({ childName }: { childName: string }) {
   ]
 
   // 图表数据
-  const chartData = {
-    labels: ["认知发展", "语言能力", "运动发展", "社会情感", "自理能力"],
-    datasets: [
-      {
-        label: "当前得分",
-        data: [85, 92, 78, 88, 90],
-      },
-    ],
-  }
+  const chartData = [
+    { date: "2023-01-15", dimension: "认知发展", score: 85 },
+    { date: "2023-01-15", dimension: "语言能力", score: 92 },
+    { date: "2023-01-15", dimension: "运动发展", score: 78 },
+    { date: "2023-01-15", dimension: "社会情感", score: 88 },
+    { date: "2023-01-15", dimension: "自理能力", score: 90 },
+  ]
 
   const mockAssessmentResultWithName = {
     ...mockAssessmentResult,

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
+import { reportError } from "@/lib/global-error-handler"
 
 export async function POST(request: Request) {
   try {
     const { content, recordType } = await request.json()
 
-    const prompt = `你是AI小语，专业的儿童成长记录分析助手。
+    // AI分析提示词模板
+    const _prompt = `你是AI小语，专业的儿童成长记录分析助手。
 
 用户正在创建一条${recordType === "milestone" ? "里程碑" : recordType === "observation" ? "观察日志" : recordType === "emotion" ? "情感记录" : "学习记录"}。
 
@@ -31,7 +33,7 @@ ${content}
 
     return NextResponse.json(mockResponse)
   } catch (error) {
-    console.error("[v0] AI分析记录失败:", error)
+    reportError(error as Error, { component: 'AIAnalyzeRecordAPI', action: 'analyzeRecord', endpoint: '/api/ai/analyze-record' })
     return NextResponse.json({ error: "AI分析失败" }, { status: 500 })
   }
 }

@@ -8,11 +8,52 @@ import Navigation from "@/components/Navigation"
 import PageHeader from "@/components/headers/PageHeader"
 import UserCenter from "@/components/auth/UserCenter"
 import { useAuth } from "@/hooks/useAuth"
+import { useChildrenMock } from "@/hooks/useChildren-mock"
+import { characterManager } from "@/lib/character-manager"
+import { 
+  GlobalButton, 
+  GlobalSwitch, 
+  GlobalCard, 
+  GlobalSettingsItem, 
+  GlobalSettingsSection,
+  GlobalFunctionButton,
+  GlobalFunctionSwitch
+} from "@/lib/ui/global-ui-components"
 
 export default function SettingsPage() {
   const [eyeMode, setEyeMode] = useState(true)
   const [reminder, setReminder] = useState(false)
-  const { user, signOut } = useAuth()
+  const { user, logout } = useAuth()
+  const { currentChild } = useChildrenMock()
+
+  const handleSignOut = async () => {
+    await logout()
+  }
+
+  const handleEditProfile = () => {
+    // TODO: 实现编辑资料功能
+    console.log("编辑资料")
+  }
+
+  const handleViewParentCode = () => {
+    // TODO: 实现查看家长授权码功能
+    console.log("查看家长授权码")
+  }
+
+  const handleFAQ = () => {
+    // TODO: 实现常见问题功能
+    console.log("常见问题")
+  }
+
+  const handleContactUs = () => {
+    // TODO: 实现联系我们功能
+    console.log("联系我们")
+  }
+
+  const handleLogin = () => {
+    // TODO: 实现登录功能
+    console.log("登录")
+  }
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative bg-sky-100">
@@ -29,11 +70,21 @@ export default function SettingsPage() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-                    {user ? user.name?.charAt(0) || user.email?.charAt(0) || "U" : "?"}
-                  </div>
+                  {currentChild ? (
+                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={characterManager.getCharacterImagePath(characterManager.getCharacterForUser(currentChild), 'happy')} 
+                        alt={currentChild.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
+                      {user ? `${user.firstName || ""}${user.lastName || ""}`.charAt(0) || user.email?.charAt(0) || "U" : "?"}
+                    </div>
+                  )}
                   <div>
-                    <h3 className="text-xl font-bold">{user ? user.name || user.email?.split("@")[0] : "未登录"}</h3>
+                    <h3 className="text-xl font-bold">{user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email?.split("@")[0] : "未登录"}</h3>
                     <p className="text-white/80 text-sm">{user ? user.email : "登录后享受完整功能"}</p>
                   </div>
                 </div>
@@ -60,45 +111,80 @@ export default function SettingsPage() {
           </section>
 
           {/* 账户与安全 */}
-          <SettingsSection title="账户与安全" icon="ri-user-settings-fill" iconColor="text-blue-500" index={0}>
-            <SettingsItem
+          <GlobalSettingsSection 
+            title="账户与安全" 
+            icon="ri-user-settings-fill" 
+            iconColor="text-blue-500"
+          >
+            <GlobalSettingsItem
               icon="ri-account-circle-fill"
               iconColor="text-blue-400"
               title="修改资料/昵称"
-              subtitle={user ? `当前昵称：${user.name || "未设置"}` : "请先登录"}
+              subtitle={user ? `当前昵称：${user.firstName || ""} ${user.lastName || ""}`.trim() || "未设置" : "请先登录"}
               hasArrow
+              action={
+                <GlobalFunctionButton
+                  variant="outline"
+                  size="sm"
+                  enabled={true}
+                  onClick={handleEditProfile}
+                >
+                  编辑
+                </GlobalFunctionButton>
+              }
             />
-            <SettingsItem
+            <GlobalSettingsItem
               icon="ri-shield-fill"
               iconColor="text-green-400"
               title="家长授权码"
               subtitle="用于家长端绑定和管理"
               action={
-                <button className="bg-green-400 text-white px-4 py-1.5 rounded-full text-sm font-bold hover:bg-green-500">
+                <GlobalFunctionButton
+                  variant="outline"
+                  size="sm"
+                  enabled={true}
+                  onClick={handleViewParentCode}
+                >
                   查看
-                </button>
+                </GlobalFunctionButton>
               }
             />
-          </SettingsSection>
+          </GlobalSettingsSection>
 
           {/* 学习偏好 */}
-          <SettingsSection title="学习偏好" icon="ri-book-mark-fill" iconColor="text-purple-500" index={1}>
-            <SettingsItem
+          <GlobalSettingsSection 
+            title="学习偏好" 
+            icon="ri-book-mark-fill" 
+            iconColor="text-purple-500"
+          >
+            <GlobalSettingsItem
               icon="ri-eye-fill"
               iconColor="text-purple-400"
               title="护眼模式"
               subtitle="开启后界面将调整为暖色"
-              action={<ToggleSwitch value={eyeMode} onChange={setEyeMode} />}
+              action={
+                <GlobalFunctionSwitch 
+                  checked={eyeMode} 
+                  enabled={true}
+                  onCheckedChange={setEyeMode}
+                />
+              }
             />
-            <SettingsItem
+            <GlobalSettingsItem
               icon="ri-notification-3-fill"
               iconColor="text-pink-400"
               title="学习进度提醒"
               subtitle="每天发送一次作业提醒"
-              action={<ToggleSwitch value={reminder} onChange={setReminder} />}
-              hasBorder
+              action={
+                <GlobalFunctionSwitch 
+                  checked={reminder} 
+                  hasBorder 
+                  enabled={true}
+                  onCheckedChange={setReminder}
+                />
+              }
             />
-          </SettingsSection>
+          </GlobalSettingsSection>
 
           {/* 家长与帮助 */}
           <section className="col-span-1 md:col-span-2">
@@ -113,40 +199,53 @@ export default function SettingsPage() {
             </motion.h2>
 
             <motion.div
-              className="bg-white rounded-3xl p-6 shadow-soft grid grid-cols-1 md:grid-cols-3 gap-6"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <ActionCard
-                icon="ri-question-mark-circle-fill"
-                iconColor="text-yellow-500"
-                bgColor="bg-macaron-yellow hover:bg-yellow-100"
-                label="常见问题 (FAQ)"
-              />
-              <ActionCard
-                icon="ri-customer-service-2-fill"
-                iconColor="text-green-500"
-                bgColor="bg-macaron-green hover:bg-green-100"
-                label="联系我们"
-              />
+              <GlobalFunctionButton
+                variant="outline"
+                size="lg"
+                className="flex flex-col items-center p-4 h-auto"
+                enabled={true}
+                onClick={handleFAQ}
+              >
+                <i className="ri-question-mark-circle-fill text-3xl text-yellow-500 mb-1" />
+                <p className="font-bold text-slate-800">常见问题 (FAQ)</p>
+              </GlobalFunctionButton>
+              <GlobalFunctionButton
+                variant="outline"
+                size="lg"
+                className="flex flex-col items-center p-4 h-auto"
+                enabled={true}
+                onClick={handleContactUs}
+              >
+                <i className="ri-customer-service-2-fill text-3xl text-green-500 mb-1" />
+                <p className="font-bold text-slate-800">联系我们</p>
+              </GlobalFunctionButton>
               {user ? (
-                <ActionCard
-                  icon="ri-logout-box-r-fill"
-                  iconColor="text-red-600"
-                  bgColor="bg-red-100 hover:bg-red-200"
-                  label="退出登录"
-                  textColor="text-red-600"
-                  onClick={signOut}
-                />
+                <GlobalFunctionButton
+                  variant="outline"
+                  size="lg"
+                  className="flex flex-col items-center p-4 h-auto border-red-200 bg-red-50 hover:bg-red-100"
+                  enabled={true}
+                  onClick={handleSignOut}
+                >
+                  <i className="ri-logout-box-r-fill text-3xl text-red-600 mb-1" />
+                  <p className="font-bold text-red-600">退出登录</p>
+                </GlobalFunctionButton>
               ) : (
-                <ActionCard
-                  icon="ri-login-box-line"
-                  iconColor="text-blue-600"
-                  bgColor="bg-blue-100 hover:bg-blue-200"
-                  label="登录账号"
-                  textColor="text-blue-600"
-                />
+                <GlobalFunctionButton
+                  variant="outline"
+                  size="lg"
+                  className="flex flex-col items-center p-4 h-auto border-blue-200 bg-blue-50 hover:bg-blue-100"
+                  enabled={true}
+                  onClick={handleLogin}
+                >
+                  <i className="ri-login-box-line text-3xl text-blue-600 mb-1" />
+                  <p className="font-bold text-blue-600">登录账号</p>
+                </GlobalFunctionButton>
               )}
             </motion.div>
           </section>
@@ -155,123 +254,5 @@ export default function SettingsPage() {
 
       <Navigation />
     </div>
-  )
-}
-
-function SettingsSection({
-  title,
-  icon,
-  iconColor,
-  index,
-  children,
-}: {
-  title: string
-  icon: string
-  iconColor: string
-  index: number
-  children: React.ReactNode
-}) {
-  return (
-    <section>
-      <motion.h2
-        className="text-xl font-bold text-slate-700 mb-4 flex items-center gap-2"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: index * 0.2 }}
-      >
-        <i className={`${icon} ${iconColor}`} />
-        {title}
-      </motion.h2>
-
-      <motion.div
-        className="bg-white rounded-3xl p-6 shadow-soft space-y-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.2 + 0.2 }}
-      >
-        {children}
-      </motion.div>
-    </section>
-  )
-}
-
-function SettingsItem({
-  icon,
-  iconColor,
-  title,
-  subtitle,
-  hasArrow,
-  action,
-  hasBorder,
-}: {
-  icon: string
-  iconColor: string
-  title: string
-  subtitle: string
-  hasArrow?: boolean
-  action?: React.ReactNode
-  hasBorder?: boolean
-}) {
-  return (
-    <motion.div
-      className={`flex justify-between items-center py-2 hover:bg-blue-50/50 transition rounded-lg px-2 -mx-2 ${hasBorder ? "border-t pt-4 border-slate-50/50" : ""}`}
-      whileHover={{ x: 5 }}
-    >
-      <div className="flex items-center gap-3">
-        <i className={`${icon} text-2xl ${iconColor}`} />
-        <div>
-          <p className="font-bold">{title}</p>
-          <p className="text-sm text-slate-500">{subtitle}</p>
-        </div>
-      </div>
-      {hasArrow && <i className="ri-arrow-right-s-line text-xl text-slate-400" />}
-      {action}
-    </motion.div>
-  )
-}
-
-function ToggleSwitch({ value, onChange }: { value: boolean; onChange: (value: boolean) => void }) {
-  return (
-    <motion.div
-      className={`relative w-12 h-6 rounded-full cursor-pointer transition-colors ${
-        value ? "bg-blue-400" : "bg-slate-300"
-      }`}
-      onClick={() => onChange(!value)}
-      whileTap={{ scale: 0.95 }}
-    >
-      <motion.div
-        className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"
-        animate={{ x: value ? 24 : 0 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      />
-    </motion.div>
-  )
-}
-
-function ActionCard({
-  icon,
-  iconColor,
-  bgColor,
-  label,
-  textColor = "text-slate-800",
-  onClick,
-}: {
-  icon: string
-  iconColor: string
-  bgColor: string
-  label: string
-  textColor?: string
-  onClick?: () => void
-}) {
-  return (
-    <motion.button
-      className={`flex flex-col items-center p-4 rounded-2xl transition ${bgColor}`}
-      whileHover={{ scale: 1.05, y: -3 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
-    >
-      <i className={`${icon} text-3xl ${iconColor}`} />
-      <p className={`font-bold mt-1 ${textColor}`}>{label}</p>
-    </motion.button>
   )
 }

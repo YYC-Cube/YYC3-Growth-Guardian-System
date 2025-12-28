@@ -1,7 +1,17 @@
 // Supabase数据库客户端封装
 // 为未来集成Supabase做准备，提供统一的数据访问接口
 
-import type { Child, GrowthRecord, Assessment, Milestone } from "./client"
+import type { Child, GrowthRecord, Assessment, Milestone, StorageKey } from "./client"
+import type {
+  DatabaseClient,
+  AuthUser,
+  AuthSession,
+  RealtimeCallback,
+  QueryBuilder,
+  StorageClient,
+  AuthClient,
+  RealtimeClient
+} from "@/types/database"
 
 // Supabase配置类型
 interface SupabaseConfig {
@@ -10,97 +20,184 @@ interface SupabaseConfig {
   serviceRoleKey?: string
 }
 
-// 认证用户类型
-export interface AuthUser {
-  id: string
-  email: string
-  name?: string
-  avatar_url?: string
-  created_at: string
-}
-
-// 认证会话类型
-export interface AuthSession {
-  user: AuthUser
-  access_token: string
-  refresh_token: string
-  expires_at: number
-}
-
-// 实时订阅类型
-type RealtimeCallback<T> = (payload: {
-  eventType: "INSERT" | "UPDATE" | "DELETE"
-  new: T | null
-  old: T | null
-}) => void
-
-// 数据库客户端接口
-export interface DatabaseClient {
-  // 认证方法
-  auth: {
-    signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<AuthSession>
-    signIn: (email: string, password: string) => Promise<AuthSession>
-    signOut: () => Promise<void>
-    getUser: () => Promise<AuthUser | null>
-    getSession: () => Promise<AuthSession | null>
-    onAuthStateChange: (callback: (session: AuthSession | null) => void) => () => void
-    resetPassword: (email: string) => Promise<void>
-    updatePassword: (newPassword: string) => Promise<void>
+// 查询构建器实现
+class MockQueryBuilder<T = any> implements QueryBuilder<T> {
+  private query: {
+    table: string
+    columns?: string
+    filters: Array<{column: string, operator: string, value: any}>
+    orderBy?: {column: string, ascending: boolean}
+    limitCount?: number
+    offsetCount?: number
+    rangeFrom?: number
+    rangeTo?: number
+  } = {
+    table: '',
+    filters: []
   }
 
-  // 数据操作方法
-  from: <T>(table: string) => {
-    select: (columns?: string) => QueryBuilder<T>
-    insert: (data: Partial<T> | Partial<T>[]) => Promise<T | T[]>
-    update: (data: Partial<T>) => QueryBuilder<T>
-    delete: () => QueryBuilder<T>
-    upsert: (data: Partial<T> | Partial<T>[]) => Promise<T | T[]>
+  constructor(table: string) {
+    this.query.table = table
   }
 
-  // 实时订阅
-  subscribe: <T>(table: string, callback: RealtimeCallback<T>) => () => void
-
-  // 存储方法
-  storage: {
-    upload: (bucket: string, path: string, file: File) => Promise<string>
-    download: (bucket: string, path: string) => Promise<Blob>
-    remove: (bucket: string, paths: string[]) => Promise<void>
-    getPublicUrl: (bucket: string, path: string) => string
-    list: (bucket: string, path?: string) => Promise<{ name: string; size: number }[]>
+  select(columns?: string): QueryBuilder<T> {
+    this.query.columns = columns
+    return this
   }
 
-  // RPC调用
-  rpc: <T>(functionName: string, params?: Record<string, unknown>) => Promise<T>
+  from(table: string): QueryBuilder<T> {
+    this.query.table = table
+    return this
+  }
+
+  where(column: string, operator: string, value: any): QueryBuilder<T> {
+    this.query.filters.push({ column, operator, value })
+    return this
+  }
+
+  whereIn(column: string, values: any[]): QueryBuilder<T> {
+    this.query.filters.push({ column, operator: 'in', value: values })
+    return this
+  }
+
+  orderBy(column: string, ascending = true): QueryBuilder<T> {
+    this.query.orderBy = { column, ascending }
+    return this
+  }
+
+  limit(count: number): QueryBuilder<T> {
+    this.query.limitCount = count
+    return this
+  }
+
+  offset(count: number): QueryBuilder<T> {
+    this.query.offsetCount = count
+    return this
+  }
+
+  range(from: number, to: number): QueryBuilder<T> {
+    this.query.rangeFrom = from
+    this.query.rangeTo = to
+    return this
+  }
+
+  async single(): Promise<T | null> {
+    // Mock implementation
+    return null
+  }
+
+  async maybeSingle(): Promise<T | null> {
+    // Mock implementation
+    return null
+  }
+
+  async execute(): Promise<T[]> {
+    // Mock implementation
+    return []
+  }
 }
 
-// 查询构建器接口
-interface QueryBuilder<T> {
-  eq: (column: string, value: unknown) => QueryBuilder<T>
-  neq: (column: string, value: unknown) => QueryBuilder<T>
-  gt: (column: string, value: unknown) => QueryBuilder<T>
-  gte: (column: string, value: unknown) => QueryBuilder<T>
-  lt: (column: string, value: unknown) => QueryBuilder<T>
-  lte: (column: string, value: unknown) => QueryBuilder<T>
-  like: (column: string, pattern: string) => QueryBuilder<T>
-  ilike: (column: string, pattern: string) => QueryBuilder<T>
-  in: (column: string, values: unknown[]) => QueryBuilder<T>
-  contains: (column: string, value: unknown) => QueryBuilder<T>
-  order: (column: string, options?: { ascending?: boolean }) => QueryBuilder<T>
-  limit: (count: number) => QueryBuilder<T>
-  offset: (count: number) => QueryBuilder<T>
-  range: (from: number, to: number) => QueryBuilder<T>
-  single: () => Promise<T | null>
-  maybeSingle: () => Promise<T | null>
-  execute: () => Promise<T[]>
+// 存储客户端实现
+class MockStorageClient implements StorageClient {
+  async upload(bucket: string, path: string, file: File): Promise<string> {
+    return `/storage/${bucket}/${path}`
+  }
+
+  async download(bucket: string, path: string): Promise<Blob> {
+    return new Blob()
+  }
+
+  async remove(bucket: string, paths: string[]): Promise<void> {
+    // Mock implementation
+  }
+
+  getPublicUrl(bucket: string, path: string): string {
+    return `/storage/${bucket}/${path}`
+  }
+
+  async list(bucket: string, path?: string): Promise<{ name: string; size: number }[]> {
+    return []
+  }
+}
+
+// 认证客户端实现
+class MockAuthClient implements AuthClient {
+  async signUp(email: string, password: string, options?: any): Promise<any> {
+    return {
+      user: { id: crypto.randomUUID(), email },
+      session: { access_token: 'mock-token' }
+    }
+  }
+
+  async signIn(email: string, password: string): Promise<any> {
+    return {
+      user: { id: crypto.randomUUID(), email },
+      session: { access_token: 'mock-token' }
+    }
+  }
+
+  async signOut(): Promise<void> {
+    // Mock implementation
+  }
+
+  async getCurrentUser(): Promise<any> {
+    return null
+  }
+
+  async getSession(): Promise<any> {
+    return null
+  }
+
+  async updateUser(attributes: any): Promise<any> {
+    return {}
+  }
+
+  async resetPasswordForEmail(email: string): Promise<void> {
+    // Mock implementation
+  }
+
+  onAuthStateChange(callback: (session: any) => void): () => void {
+    return () => {} // Mock cleanup function
+  }
+}
+
+// 实时客户端实现
+class MockRealtimeClient implements RealtimeClient {
+  private channels = new Map<string, any>()
+
+  channel(channel: string): any {
+    if (!this.channels.has(channel)) {
+      this.channels.set(channel, {
+        on: () => this.channels.get(channel),
+        subscribe: () => this.channels.get(channel),
+        unsubscribe: () => {},
+        send: () => this.channels.get(channel)
+      })
+    }
+    return this.channels.get(channel)
+  }
+
+  async connect(): Promise<void> {
+    // Mock implementation
+  }
+
+  disconnect(): void {
+    // Mock implementation
+  }
 }
 
 // 模拟Supabase客户端（开发环境）
 class MockSupabaseClient implements DatabaseClient {
-  private storage: Map<string, unknown[]> = new Map()
+  private storage = new Map<string, unknown[]>()
   private currentUser: AuthUser | null = null
   private currentSession: AuthSession | null = null
   private authListeners: ((session: AuthSession | null) => void)[] = []
   private realtimeListeners: Map<string, RealtimeCallback<unknown>[]> = new Map()
+
+  // 服务实例
+  public readonly storage: StorageClient = new MockStorageClient()
+  public readonly auth: AuthClient = new MockAuthClient()
+  public readonly realtime: RealtimeClient = new MockRealtimeClient()
 
   constructor() {
     // 从localStorage恢复会话
@@ -109,7 +206,7 @@ class MockSupabaseClient implements DatabaseClient {
       if (savedSession) {
         try {
           this.currentSession = JSON.parse(savedSession)
-          this.currentUser = this.currentSession?.user || null
+          this.currentUser = this.currentSession.user
         } catch {
           // 忽略解析错误
         }
@@ -117,146 +214,144 @@ class MockSupabaseClient implements DatabaseClient {
     }
   }
 
-  auth = {
-    signUp: async (email: string, password: string, metadata?: Record<string, unknown>): Promise<AuthSession> => {
-      // 模拟注册
-      const user: AuthUser = {
-        id: crypto.randomUUID(),
-        email,
-        name: (metadata?.name as string) || email.split("@")[0],
-        avatar_url: metadata?.avatar_url as string,
-        created_at: new Date().toISOString(),
-      }
-
-      const session: AuthSession = {
-        user,
-        access_token: `mock_token_${Date.now()}`,
-        refresh_token: `mock_refresh_${Date.now()}`,
-        expires_at: Date.now() + 3600000,
-      }
-
-      this.currentUser = user
-      this.currentSession = session
-      this.persistSession(session)
-      this.notifyAuthListeners(session)
-
-      return session
-    },
-
-    signIn: async (email: string, _password: string): Promise<AuthSession> => {
-      // 模拟登录
-      const user: AuthUser = {
-        id: "user-001",
-        email,
-        name: email.split("@")[0],
-        created_at: new Date().toISOString(),
-      }
-
-      const session: AuthSession = {
-        user,
-        access_token: `mock_token_${Date.now()}`,
-        refresh_token: `mock_refresh_${Date.now()}`,
-        expires_at: Date.now() + 3600000,
-      }
-
-      this.currentUser = user
-      this.currentSession = session
-      this.persistSession(session)
-      this.notifyAuthListeners(session)
-
-      return session
-    },
-
-    signOut: async () => {
-      this.currentUser = null
-      this.currentSession = null
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("yyc3_auth_session")
-      }
-      this.notifyAuthListeners(null)
-    },
-
-    getUser: async () => this.currentUser,
-
-    getSession: async () => this.currentSession,
-
-    onAuthStateChange: (callback: (session: AuthSession | null) => void) => {
-      this.authListeners.push(callback)
-      return () => {
-        this.authListeners = this.authListeners.filter((l) => l !== callback)
-      }
-    },
-
-    resetPassword: async (_email: string) => {
-      // 模拟发送重置邮件
-      console.log("[Mock] Password reset email sent")
-    },
-
-    updatePassword: async (_newPassword: string) => {
-      // 模拟更新密码
-      console.log("[Mock] Password updated")
-    },
+  // 基础查询方法
+  async findMany<T>(table: string, filter?: (item: T) => boolean): Promise<T[]> {
+    const collection = this.getCollection<T>(table)
+    return filter ? collection.filter(filter) : collection
   }
 
-  from<T>(table: string) {
-    return {
-      select: (_columns?: string): QueryBuilder<T> => this.createQueryBuilder<T>(table),
-      insert: async (data: Partial<T> | Partial<T>[]): Promise<T | T[]> => {
-        const collection = this.getCollection<T>(table)
-        const items = Array.isArray(data) ? data : [data]
-        const newItems = items.map((item) => ({
-          ...item,
-          id: crypto.randomUUID(),
-          created_at: new Date().toISOString(),
-        })) as T[]
-        collection.push(...newItems)
-        this.setCollection(table, collection)
+  async findOne<T extends { id: string }>(table: string, id: string): Promise<T | null> {
+    const collection = this.getCollection<T>(table)
+    return collection.find((item) => item.id === id) || null
+  }
 
-        // 触发实时通知
-        newItems.forEach((item) => {
-          this.notifyRealtimeListeners(table, { eventType: "INSERT", new: item, old: null })
-        })
+  async findFirst<T>(table: string, filter: (item: T) => boolean): Promise<T | null> {
+    const collection = this.getCollection<T>(table)
+    return collection.find(filter) || null
+  }
 
-        return Array.isArray(data) ? newItems : newItems[0]
-      },
-      update: (_data: Partial<T>): QueryBuilder<T> => this.createQueryBuilder<T>(table),
-      delete: (): QueryBuilder<T> => this.createQueryBuilder<T>(table),
-      upsert: async (data: Partial<T> | Partial<T>[]): Promise<T | T[]> => {
-        return this.from<T>(table).insert(data)
-      },
+  // 数据修改方法
+  async create<T extends { id?: string; created_at?: string }>(
+    table: string,
+    data: Omit<T, 'id' | 'created_at'>
+  ): Promise<T> {
+    const collection = this.getCollection<T>(table)
+    const newItem = {
+      ...data,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+    } as T
+    collection.push(newItem)
+    this.setCollection(table, collection)
+    return newItem
+  }
+
+  async createMany<T extends { id?: string; created_at?: string }>(
+    table: string,
+    dataArray: Omit<T, 'id' | 'created_at'>[]
+  ): Promise<T[]> {
+    const collection = this.getCollection<T>(table)
+    const newItems = dataArray.map((data) => ({
+      ...data,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+    })) as T[]
+    collection.push(...newItems)
+    this.setCollection(table, collection)
+    return newItems
+  }
+
+  async update<T extends { id: string; updated_at?: string }>(
+    table: string,
+    id: string,
+    data: Partial<Omit<T, 'id'>>
+  ): Promise<T | null> {
+    const collection = this.getCollection<T>(table)
+    const index = collection.findIndex((item) => item.id === id)
+    if (index === -1) return null
+
+    collection[index] = {
+      ...collection[index],
+      ...data,
+      updated_at: new Date().toISOString(),
     }
+    this.setCollection(table, collection)
+    return collection[index]
   }
 
-  subscribe<T>(table: string, callback: RealtimeCallback<T>): () => void {
-    if (!this.realtimeListeners.has(table)) {
-      this.realtimeListeners.set(table, [])
+  async upsert<T extends { id: string; created_at?: string; updated_at?: string }>(
+    table: string,
+    id: string,
+    data: Omit<T, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<T> {
+    const existing = await this.findOne<T>(table, id)
+    if (existing) {
+      return (await this.update<T>(table, id, data as Partial<Omit<T, 'id'>>)) as T
     }
-    this.realtimeListeners.get(table)!.push(callback as RealtimeCallback<unknown>)
+    return this.create<T>(table, { ...data, id } as Omit<T, 'id' | 'created_at'>)
+  }
 
-    return () => {
-      const listeners = this.realtimeListeners.get(table)
-      if (listeners) {
-        this.realtimeListeners.set(
-          table,
-          listeners.filter((l) => l !== callback),
-        )
-      }
+  async delete(table: string, id: string): Promise<boolean> {
+    const collection = this.getCollection<{ id: string }>(table)
+    const filtered = collection.filter((item) => item.id !== id)
+    if (filtered.length === collection.length) return false
+    this.setCollection(table, filtered)
+    return true
+  }
+
+  async deleteMany(table: string, ids: string[]): Promise<number> {
+    const collection = this.getCollection<{ id: string }>(table)
+    const filtered = collection.filter((item) => !ids.includes(item.id))
+    const deletedCount = collection.length - filtered.length
+    this.setCollection(table, filtered)
+    return deletedCount
+  }
+
+  // 聚合和统计方法
+  async count<T>(table: string, filter?: (item: T) => boolean): Promise<number> {
+    const collection = this.getCollection<T>(table)
+    return filter ? collection.filter(filter).length : collection.length
+  }
+
+  async aggregate<T, R>(table: string, aggregator: (items: T[]) => R): Promise<R> {
+    const collection = this.getCollection<T>(table)
+    return aggregator(collection)
+  }
+
+  async paginate<T>(
+    table: string,
+    options: {
+      page: number
+      pageSize: number
+      filter?: (item: T) => boolean
+      sort?: (a: T, b: T) => number
     }
+  ): Promise<{ data: T[]; total: number; totalPages: number }> {
+    let collection = this.getCollection<T>(table)
+
+    if (options.filter) {
+      collection = collection.filter(options.filter)
+    }
+
+    if (options.sort) {
+      collection = collection.sort(options.sort)
+    }
+
+    const total = collection.length
+    const totalPages = Math.ceil(total / options.pageSize)
+    const start = (options.page - 1) * options.pageSize
+    const data = collection.slice(start, start + options.pageSize)
+
+    return { data, total, totalPages }
   }
 
-  storage = {
-    upload: async (_bucket: string, path: string, _file: File): Promise<string> => {
-      return `/storage/${path}`
-    },
-    download: async (_bucket: string, _path: string): Promise<Blob> => {
-      return new Blob()
-    },
-    remove: async (_bucket: string, _paths: string[]): Promise<void> => {},
-    getPublicUrl: (_bucket: string, path: string): string => `/storage/${path}`,
-    list: async (_bucket: string, _path?: string): Promise<{ name: string; size: number }[]> => [],
+  // 查询构建器
+  from<T = any>(table: string): QueryBuilder<T> {
+    return new MockQueryBuilder<T>(table)
   }
 
-  async rpc<T>(_functionName: string, _params?: Record<string, unknown>): Promise<T> {
+  // RPC 调用
+  async rpc<T>(functionName: string, params?: Record<string, unknown>): Promise<T> {
     return {} as T
   }
 
@@ -272,143 +367,91 @@ class MockSupabaseClient implements DatabaseClient {
     localStorage.setItem(`yyc3_${table}`, JSON.stringify(data))
   }
 
-  private persistSession(session: AuthSession): void {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("yyc3_auth_session", JSON.stringify(session))
+  // 初始化模拟数据
+  async seedMockData(): Promise<void> {
+    if (typeof window === "undefined") return
+
+    const hasData = localStorage.getItem("yyc3_initialized")
+    if (hasData) return
+
+    // 创建模拟用户
+    const mockUser = {
+      id: "user-001",
+      email: "parent@example.com",
+      name: "张女士",
+      avatar_url: "/placeholder.svg?height=100&width=100",
+      role: "parent",
+      created_at: new Date().toISOString(),
     }
+    localStorage.setItem("yyc3_users", JSON.stringify([mockUser]))
+
+    // 创建模拟儿童档案
+    const mockChild: Child = {
+      id: "child-001",
+      user_id: "user-001",
+      name: "小语",
+      nickname: "小语",
+      birth_date: "2018-09-15",
+      gender: "female",
+      avatar_url: "/placeholder.svg?height=100&width=100",
+      current_stage: "6-9岁学术奠基期",
+      created_at: new Date().toISOString(),
+    }
+    localStorage.setItem("yyc3_children", JSON.stringify([mockChild]))
+
+    localStorage.setItem("yyc3_initialized", "true")
   }
 
-  private notifyAuthListeners(session: AuthSession | null): void {
-    this.authListeners.forEach((l) => l(session))
+  // 清除所有数据
+  async clearAll(): Promise<void> {
+    if (typeof window === "undefined") return
+    const keys: StorageKey[] = [
+      "users",
+      "children",
+      "growth_records",
+      "growth_assessments",
+      "ai_conversations",
+      "homework_tasks",
+      "courses",
+      "milestones",
+      "stage_transitions",
+    ]
+    keys.forEach((key) => localStorage.removeItem(`yyc3_${key}`))
+    localStorage.removeItem("yyc3_initialized")
   }
 
-  private notifyRealtimeListeners<T>(
-    table: string,
-    payload: { eventType: "INSERT" | "UPDATE" | "DELETE"; new: T | null; old: T | null },
-  ): void {
-    const listeners = this.realtimeListeners.get(table)
-    if (listeners) {
-      listeners.forEach((l) => l(payload as { eventType: "INSERT" | "UPDATE" | "DELETE"; new: unknown; old: unknown }))
-    }
+  // 导出所有数据
+  async exportData(): Promise<Record<string, unknown[]>> {
+    const keys: StorageKey[] = [
+      "users",
+      "children",
+      "growth_records",
+      "growth_assessments",
+      "ai_conversations",
+      "homework_tasks",
+      "courses",
+      "milestones",
+    ]
+    const data: Record<string, unknown[]> = {}
+    keys.forEach((key) => {
+      data[key] = this.getCollection(key)
+    })
+    return data
   }
 
-  private createQueryBuilder<T>(table: string): QueryBuilder<T> {
-    const collection = this.getCollection<T>(table)
-    const filters: ((item: T) => boolean)[] = []
-    let orderColumn: string | null = null
-    let orderAscending = true
-    let limitCount: number | null = null
-    let offsetCount = 0
-
-    const builder: QueryBuilder<T> = {
-      eq: (column, value) => {
-        filters.push((item: T) => (item as Record<string, unknown>)[column] === value)
-        return builder
-      },
-      neq: (column, value) => {
-        filters.push((item: T) => (item as Record<string, unknown>)[column] !== value)
-        return builder
-      },
-      gt: (column, value) => {
-        filters.push((item: T) => ((item as Record<string, unknown>)[column] as number) > (value as number))
-        return builder
-      },
-      gte: (column, value) => {
-        filters.push((item: T) => ((item as Record<string, unknown>)[column] as number) >= (value as number))
-        return builder
-      },
-      lt: (column, value) => {
-        filters.push((item: T) => ((item as Record<string, unknown>)[column] as number) < (value as number))
-        return builder
-      },
-      lte: (column, value) => {
-        filters.push((item: T) => ((item as Record<string, unknown>)[column] as number) <= (value as number))
-        return builder
-      },
-      like: (column, pattern) => {
-        const regex = new RegExp(pattern.replace(/%/g, ".*"))
-        filters.push((item: T) => regex.test(String((item as Record<string, unknown>)[column])))
-        return builder
-      },
-      ilike: (column, pattern) => {
-        const regex = new RegExp(pattern.replace(/%/g, ".*"), "i")
-        filters.push((item: T) => regex.test(String((item as Record<string, unknown>)[column])))
-        return builder
-      },
-      in: (column, values) => {
-        filters.push((item: T) => values.includes((item as Record<string, unknown>)[column]))
-        return builder
-      },
-      contains: (column, value) => {
-        filters.push((item: T) => {
-          const col = (item as Record<string, unknown>)[column]
-          if (Array.isArray(col)) return col.includes(value)
-          return false
-        })
-        return builder
-      },
-      order: (column, options) => {
-        orderColumn = column
-        orderAscending = options?.ascending ?? true
-        return builder
-      },
-      limit: (count) => {
-        limitCount = count
-        return builder
-      },
-      offset: (count) => {
-        offsetCount = count
-        return builder
-      },
-      range: (from, to) => {
-        offsetCount = from
-        limitCount = to - from + 1
-        return builder
-      },
-      single: async () => {
-        const results = await builder.execute()
-        return results[0] || null
-      },
-      maybeSingle: async () => {
-        const results = await builder.execute()
-        return results[0] || null
-      },
-      execute: async () => {
-        let result = collection
-
-        // 应用过滤器
-        for (const filter of filters) {
-          result = result.filter(filter)
-        }
-
-        // 应用排序
-        if (orderColumn) {
-          result = result.sort((a, b) => {
-            const aVal = (a as Record<string, unknown>)[orderColumn!]
-            const bVal = (b as Record<string, unknown>)[orderColumn!]
-            const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0
-            return orderAscending ? cmp : -cmp
-          })
-        }
-
-        // 应用分页
-        if (offsetCount > 0) {
-          result = result.slice(offsetCount)
-        }
-        if (limitCount !== null) {
-          result = result.slice(0, limitCount)
-        }
-
-        return result
-      },
-    }
-
-    return builder
+  // 导入数据
+  async importData(data: Record<string, unknown[]>): Promise<void> {
+    Object.entries(data).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        this.setCollection(key, value)
+      }
+    })
   }
 }
 
-// 创建并导出客户端实例
+// 导出客户端实例
 export const supabase = new MockSupabaseClient()
 
-// 类型导出
-export type { Child, GrowthRecord, Assessment, Milestone }
+// 导出类型
+export type { AuthUser, AuthSession, RealtimeCallback }
+export { MockSupabaseClient }

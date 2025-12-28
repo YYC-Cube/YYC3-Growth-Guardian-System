@@ -7,10 +7,11 @@ import { motion, AnimatePresence } from "framer-motion"
 import Navigation from "@/components/Navigation"
 import PageHeader from "@/components/headers/PageHeader"
 import { db, type Child } from "@/lib/db/client"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth.tsx"
+import { ChildQVersionAvatar, GenderSelector } from "@/components/ui/QVersionCharacter"
 
 export default function ChildrenPage() {
-  const { user, isAuthenticated } = useAuth()
+  const { user } = useAuth()
   const [children, setChildren] = useState<Child[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -65,7 +66,7 @@ export default function ChildrenPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 to-white">
-      <PageHeader title="儿童档案" subtitle="管理孩子的成长档案" />
+      <PageHeader title="儿童档案" subtitle="管理孩子的成长档案" showBack />
 
       <main className="flex-1 px-4 pb-24 pt-4">
         <div className="max-w-4xl mx-auto">
@@ -103,18 +104,11 @@ export default function ChildrenPage() {
                   whileHover={{ scale: 1.01 }}
                 >
                   <div className="flex items-start gap-4">
-                    {/* 头像 */}
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-2xl font-bold overflow-hidden">
-                      {child.avatar_url ? (
-                        <img
-                          src={child.avatar_url || "/placeholder.svg"}
-                          alt={child.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        child.name.charAt(0)
-                      )}
-                    </div>
+                    {/* Q版角色头像 */}
+                    <ChildQVersionAvatar
+                      child={child as any}
+                      size="lg"
+                    />
 
                     {/* 信息 */}
                     <div className="flex-1">
@@ -309,30 +303,13 @@ function ChildFormModal({
 
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-2">
-              性别 <span className="text-red-500">*</span>
+              选择宝宝性别 <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-4">
-              {[
-                { value: "male", label: "男", icon: "ri-men-line", color: "blue" },
-                { value: "female", label: "女", icon: "ri-women-line", color: "pink" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, gender: option.value as "male" | "female" })}
-                  className={`flex-1 py-3 rounded-lg border-2 transition flex items-center justify-center gap-2 ${
-                    formData.gender === option.value
-                      ? option.color === "blue"
-                        ? "border-blue-500 bg-blue-50 text-blue-600"
-                        : "border-pink-500 bg-pink-50 text-pink-600"
-                      : "border-slate-200 text-slate-400"
-                  }`}
-                >
-                  <i className={option.icon} />
-                  {option.label}
-                </button>
-              ))}
-            </div>
+            <GenderSelector
+              value={formData.gender}
+              onChange={(gender) => setFormData({ ...formData, gender })}
+              size="md"
+            />
           </div>
 
           <div className="flex gap-3 pt-4">

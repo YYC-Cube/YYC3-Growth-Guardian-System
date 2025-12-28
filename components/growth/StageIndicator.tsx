@@ -3,17 +3,22 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGrowthStage } from "@/hooks/useGrowthStage"
-import { AGE_STAGES } from "@/lib/growth-stages"
+import { AGE_STAGES } from "@/lib/growth_stages"
+import type { AgeStageConfig } from "@/types/growth"
 
 interface StageIndicatorProps {
   birthDate?: Date
+  childName?: string
   compact?: boolean
+  showMilestones?: boolean
   showRecommendations?: boolean
 }
 
 export default function StageIndicator({
   birthDate,
+  childName,
   compact = false,
+  showMilestones = false,
   showRecommendations = false,
 }: StageIndicatorProps) {
   const {
@@ -56,7 +61,7 @@ export default function StageIndicator({
   if (compact) {
     return (
       <motion.div
-        className={`bg-gradient-to-r ${stageColors[currentStage.color]} rounded-xl p-3 text-white cursor-pointer`}
+        className={`bg-linear-to-r ${stageColors[currentStage.color]} rounded-xl p-3 text-white cursor-pointer`}
         onClick={() => setShowDetails(true)}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -77,7 +82,7 @@ export default function StageIndicator({
   return (
     <>
       <motion.div
-        className={`bg-gradient-to-br ${stageColors[currentStage.color]} rounded-3xl p-6 text-white`}
+        className={`bg-linear-to-br ${stageColors[currentStage.color]} rounded-3xl p-6 text-white`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -154,7 +159,7 @@ export default function StageIndicator({
 
         {/* 重点发展领域 */}
         <div className="flex flex-wrap gap-2">
-          {currentStage.focusAreas?.slice(0, 5).map((area, i) => (
+          {currentStage.focusAreas?.slice(0, 5).map((area: string, i: number) => (
             <motion.span
               key={i}
               className="bg-white/20 px-3 py-1 rounded-full text-sm"
@@ -193,7 +198,7 @@ export default function StageIndicator({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">{currentStage.name} - 发展建议</h3>

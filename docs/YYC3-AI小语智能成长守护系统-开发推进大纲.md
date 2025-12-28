@@ -73,23 +73,27 @@ Layer 1: 基础页面层（固定布局）
 
 \`\`\`yaml
 核心框架:
-  - Next.js 16 (App Router)
-  - React 19 (Server Components)
-  - TypeScript 5.0+
+
+- Next.js 16 (App Router)
+- React 19 (Server Components)
+- TypeScript 5.0+
 
 UI系统:
-  - Tailwind CSS v4 (内联主题配置)
-  - Framer Motion (动画系统)
-  - Radix UI (无障碍组件)
-  - Remix Icon (图标系统)
+
+- Tailwind CSS v4 (内联主题配置)
+- Framer Motion (动画系统)
+- Radix UI (无障碍组件)
+- Remix Icon (图标系统)
 
 状态管理:
-  - Zustand (全局状态)
-  - SWR (数据获取与缓存)
+
+- Zustand (全局状态)
+- SWR (数据获取与缓存)
 
 构建工具:
-  - Turbopack (开发构建)
-  - Vite (生产构建)
+
+- Turbopack (开发构建)
+- Vite (生产构建)
 \`\`\`
 
 ### 2.2 AI技术栈
@@ -117,29 +121,34 @@ UI系统:
 
 \`\`\`yaml
 关系型数据库 (PostgreSQL/Supabase):
-  - 用户表 (users)
-  - 儿童档案表 (children)
-  - 成长记录表 (growth_records)
-  - 里程碑表 (milestones)
-  - 评估记录表 (assessments)
+
+- 用户表 (users)
+- 儿童档案表 (children)
+- 成长记录表 (growth_records)
+- 里程碑表 (milestones)
+- 评估记录表 (assessments)
 
 NoSQL数据库 (MongoDB):
-  - AI交互记录
-  - 多媒体元数据
-  - 非结构化日志
+
+- AI交互记录
+- 多媒体元数据
+- 非结构化日志
 
 向量数据库 (Pinecone):
-  - 语义搜索索引
-  - 相似度匹配
+
+- 语义搜索索引
+- 相似度匹配
 
 缓存层 (Redis/Upstash):
-  - 会话管理
-  - 热点数据缓存
-  - 实时数据
+
+- 会话管理
+- 热点数据缓存
+- 实时数据
 
 对象存储 (Vercel Blob):
-  - 照片/视频/音频文件
-  - 用户上传媒体
+
+- 照片/视频/音频文件
+- 用户上传媒体
 \`\`\`
 
 ---
@@ -237,6 +246,7 @@ const ROLE_PROMPTS = {
   recorder: `你是"记录者"小语，专注于捕捉和记录孩子成长的每一个珍贵瞬间。
   
 核心能力：
+
 1. 识别日常生活中的成长里程碑
 2. 将碎片化记录整理成温暖的故事
 3. 提醒家长记录重要时刻
@@ -247,6 +257,7 @@ const ROLE_PROMPTS = {
   guardian: `你是"守护者"小语，基于儿童发展心理学和医学标准提供科学守护。
   
 核心能力：
+
 1. 对照WHO/CDC等权威标准评估发展状况
 2. 识别发展风险并提供预警
 3. 提供科学的育儿建议
@@ -257,6 +268,7 @@ const ROLE_PROMPTS = {
   listener: `你是"聆听者"小语，擅长倾听和理解孩子的情绪与行为。
   
 核心能力：
+
 1. 识别孩子行为背后的情绪和需求
 2. 解码"问题行为"的真实原因
 3. 提供有效的沟通策略
@@ -267,6 +279,7 @@ const ROLE_PROMPTS = {
   advisor: `你是"建议者"小语，通过提供多元选择培养孩子的自主性。
   
 核心能力：
+
 1. 提供基于发展阶段的学习建议
 2. 推荐适龄的活动和资源
 3. 支持兴趣探索和能力培养
@@ -277,6 +290,7 @@ const ROLE_PROMPTS = {
   culturalMentor: `你是"国粹导师"小语，将中华优秀传统文化自然融入成长。
   
 核心能力：
+
 1. 适龄的国学启蒙（诗词、成语、典故）
 2. 传统节日文化教育
 3. 礼仪与品德培养
@@ -529,68 +543,77 @@ const ASSESSMENT_DIMENSIONS = {
 
 \`\`\`yaml
 代码风格:
-  - ESLint + Prettier 自动格式化
-  - TypeScript 严格模式
-  - 组件命名: PascalCase
-  - 文件命名: kebab-case
-  - 函数命名: camelCase
+
+- ESLint + Prettier 自动格式化
+- TypeScript 严格模式
+- 组件命名: PascalCase
+- 文件命名: kebab-case
+- 函数命名: camelCase
 
 提交规范:
-  - feat: 新功能
-  - fix: 修复Bug
-  - docs: 文档更新
-  - style: 样式调整
-  - refactor: 重构
-  - test: 测试相关
-  - chore: 构建/工具
+
+- feat: 新功能
+- fix: 修复Bug
+- docs: 文档更新
+- style: 样式调整
+- refactor: 重构
+- test: 测试相关
+- chore: 构建/工具
 
 分支管理:
-  - main: 生产分支
-  - develop: 开发分支
-  - feature/*: 功能分支
-  - hotfix/*: 紧急修复
+
+- main: 生产分支
+- develop: 开发分支
+- feature/*: 功能分支
+- hotfix/*: 紧急修复
 \`\`\`
 
 ### 5.2 安全规范
 
 \`\`\`yaml
 数据安全:
-  - 所有用户数据启用RLS
-  - 敏感数据AES-256加密
-  - AI对话数据匿名化处理
-  - 符合儿童隐私保护法规
+
+- 所有用户数据启用RLS
+- 敏感数据AES-256加密
+- AI对话数据匿名化处理
+- 符合儿童隐私保护法规
 
 接口安全:
-  - API请求签名验证
-  - 速率限制防滥用
-  - SQL注入防护
-  - XSS/CSRF防护
+
+- API请求签名验证
+- 速率限制防滥用
+- SQL注入防护
+- XSS/CSRF防护
 
 隐私保护:
-  - 家长授权机制
-  - 数据最小化原则
-  - 定期数据清理
-  - 隐私政策透明
+
+- 家长授权机制
+- 数据最小化原则
+- 定期数据清理
+- 隐私政策透明
 \`\`\`
 
 ### 5.3 性能指标
 
 \`\`\`yaml
 前端性能:
-  - FCP (首次内容绘制): < 1.5s
-  - LCP (最大内容绘制): < 2.5s
-  - TTI (可交互时间): < 3s
-  - CLS (累积布局偏移): < 0.1
+
+- FCP (首次内容绘制): < 1.5s
+- LCP (最大内容绘制): < 2.5s
+- TTI (可交互时间): < 3s
+- CLS (累积布局偏移): < 0.1
 
 API性能:
-  - 普通API响应: < 200ms
-  - AI对话首字节: < 500ms
-  - 文件上传: < 5s (10MB)
+
+- 普通API响应: < 200ms
+- AI对话首字节: < 500ms
+- 文件上传: < 5s (10MB)
 
 AI性能:
-  - 语音识别延迟: < 500ms
-  - 情感分析延迟: < 300ms
-  - 角色切换延迟: < 100ms
+
+- 语音识别延迟: < 500ms
+- 情感分析延迟: < 300ms
+- 角色切换延迟: < 100ms
 \`\`\`
 
 ---
@@ -668,6 +691,7 @@ interface LearningSystem {
 ### 本周任务（Week N）
 
 **高优先级**:
+
 1. 完善语音识别与合成功能
 2. 完成五大AI角色专业提示词
 3. 修复已知UI/UX问题
@@ -692,25 +716,31 @@ interface LearningSystem {
 ### A. 环境变量清单
 
 \`\`\`env
+
 # AI服务
+
 OPENAI_API_KEY=
 AZURE_SPEECH_KEY=
 AZURE_SPEECH_REGION=
 
 # 数据库
+
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
 # 缓存
+
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 
 # 向量数据库
+
 PINECONE_API_KEY=
 PINECONE_ENVIRONMENT=
 
 # 应用
+
 NEXT_PUBLIC_APP_URL=
 \`\`\`
 

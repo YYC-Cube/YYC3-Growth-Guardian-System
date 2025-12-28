@@ -30,7 +30,7 @@ export default function CurriculumPage() {
   const {
     courses,
     semester,
-    isLoading,
+    isLoading: _isLoading,
     stats,
     addCourse,
     updateCourse,

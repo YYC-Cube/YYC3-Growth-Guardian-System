@@ -2,6 +2,7 @@
 
 import React from "react"
 import { motion } from "framer-motion"
+import { reportError } from "@/lib/global-error-handler"
 
 interface ErrorBoundaryProps {
   children: React.ReactNode
@@ -23,7 +24,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("[v0] Error caught by boundary:", error, errorInfo)
+    reportError(error, { 
+      component: 'ErrorBoundary', 
+      action: 'componentDidCatch',
+      errorInfo: errorInfo 
+    })
   }
 
   render() {

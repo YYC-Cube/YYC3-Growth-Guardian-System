@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import { BackButton } from "@/components/ui/BackButton"
 
 interface PageHeaderProps {
   title: string
@@ -11,6 +12,7 @@ interface PageHeaderProps {
   showBack?: boolean
   rightAction?: React.ReactNode
   className?: string
+  icon?: string
 }
 
 export default function PageHeader({
@@ -19,6 +21,7 @@ export default function PageHeader({
   showBack = false,
   rightAction,
   className = "",
+  icon,
 }: PageHeaderProps) {
   const router = useRouter()
 
@@ -32,12 +35,16 @@ export default function PageHeader({
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
           {showBack && (
-            <button
+            <BackButton
               onClick={() => router.back()}
-              className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
-            >
-              <i className="ri-arrow-left-line text-xl text-slate-600" />
-            </button>
+              className="-ml-2"
+              variant="minimal"
+            />
+          )}
+          {icon && (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white colored-shadow-border">
+              <i className={`${icon} text-lg`} />
+            </div>
           )}
           <div>
             <h1 className="text-lg font-semibold text-slate-800">{title}</h1>

@@ -1,8 +1,9 @@
 import { generateText } from "ai"
+import { reportError } from "@/lib/global-error-handler"
 
 export async function POST(request: Request) {
   try {
-    const { childName, childAge, stageId, stageName, scores, answers } = await request.json()
+    const { childName, childAge, stageId, stageName, scores, _answers } = await request.json()
 
     // 计算各维度得分和总体评估
     const dimensionAnalysis = analyzeDimensions(scores)
@@ -58,7 +59,7 @@ ${JSON.stringify(dimensionAnalysis, null, 2)}
 
     return Response.json(report)
   } catch (error) {
-    console.error("Assessment report error:", error)
+    reportError(error as Error, { component: 'AssessmentReportAPI', action: 'generateReport', endpoint: '/api/ai/assessment-report' })
     return Response.json({ error: "报告生成失败" }, { status: 500 })
   }
 }
@@ -151,7 +152,7 @@ function extractRecommendations(report: string): string[] {
 }
 
 // 生成下一步行动
-function generateNextSteps(stageId: string, analysis: Record<string, any>): string[] {
+function generateNextSteps(_stageId: string, analysis: Record<string, any>): string[] {
   const steps = ["定期进行发展评估，追踪成长变化", "保持与孩子的高质量陪伴时间", "鼓励探索和尝试新事物"]
 
   // 找出最需要关注的维度

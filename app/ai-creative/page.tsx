@@ -107,6 +107,7 @@ export default function AICreativePage() {
       <PageHeader
         icon="ri-palette-line"
         title="AI创意工坊"
+        showBack
         actions={[{ icon: "ri-question-line", label: "使用帮助" }]}
       />
 
@@ -425,7 +426,7 @@ export default function AICreativePage() {
 
                       {/* 故事内容 */}
                       <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto">
-                        {activeStory.segments.map((segment, index) => (
+                        {activeStory.segments.map((segment) => (
                           <motion.div
                             key={segment.id}
                             initial={{ opacity: 0, x: segment.author === "child" ? 20 : -20 }}

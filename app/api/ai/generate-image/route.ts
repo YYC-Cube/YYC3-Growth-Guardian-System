@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { reportError } from "@/lib/global-error-handler"
 
 // 风格提示词映射
 const STYLE_PROMPTS: Record<string, string> = {
@@ -106,7 +107,7 @@ export async function POST(req: NextRequest) {
       isPlaceholder: true,
     })
   } catch (error) {
-    console.error("图片生成错误:", error)
+    reportError(error as Error, { component: 'ImageGenerationAPI', action: 'generateImage', endpoint: '/api/ai/generate-image' })
     return NextResponse.json({ error: "图片生成失败" }, { status: 500 })
   }
 }

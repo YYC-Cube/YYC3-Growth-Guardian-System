@@ -61,7 +61,29 @@ export default function HomeHeader() {
         </motion.div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3 items-center">
+        {/* 登录/注册按钮 */}
+        <div className="flex gap-2">
+          <Link href="/auth/login">
+            <motion.button
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              登录
+            </motion.button>
+          </Link>
+          <Link href="/auth/register">
+            <motion.button
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              注册
+            </motion.button>
+          </Link>
+        </div>
+
         <QuickActionButton
           href="/growth"
           icon="ri-calendar-check-fill"

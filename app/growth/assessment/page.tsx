@@ -11,7 +11,7 @@ import {
   generateRecommendations,
   type AssessmentDimension,
   type AssessmentQuestion,
-} from "@/lib/assessment-questions"
+} from "@/lib/assessment_questions"
 
 export default function AssessmentPage() {
   const [currentStage] = useState("3-6")

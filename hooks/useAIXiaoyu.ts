@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import { getVoiceSystem } from "@/lib/voice/voice-system"
-import { type AIRole, AI_ROLES, analyzeQueryComplexity } from "@/lib/ai-roles"
+import { type AIRole, COMPLETE_AI_ROLES, selectOptimalRole, analyzeUserEmotion, generatePersonalizedResponse } from "@/lib/ai_roles_complete"
 
 export interface AIMessage {
   role: "user" | "assistant"
@@ -10,6 +10,8 @@ export interface AIMessage {
   timestamp: Date
   aiRole?: AIRole
   emotion?: string
+  modules?: string[]
+  coordinatedRoles?: string[]
 }
 
 export interface AIState {
@@ -101,10 +103,30 @@ export function useAIXiaoyu() {
     setState((prev) => ({ ...prev, currentRole: role }))
   }, [])
 
+  // 切换角色的别名方法，兼容EnhancedAIWidget使用
+  const switchRole = useCallback((role: string | AIRole) => {
+    setCurrentRole(role as AIRole)
+  }, [setCurrentRole])
+
+  // 添加消息方法
+  const addMessage = useCallback((message: Omit<AIMessage, 'timestamp'>) => {
+    setMessages((prev) => [...prev, {
+      ...message,
+      timestamp: new Date()
+    }])
+  }, [])
+
   // 发送消息
   const sendMessage = useCallback(
     async (content: string, role?: AIRole) => {
-      const currentRole = role || state.currentRole
+      // 使用增强的智能角色选择系统
+      const emotionAnalysis = analyzeUserEmotion(content)
+      const optimalRole = role || selectOptimalRole(content, emotionAnalysis)
+
+      // 如果智能选择了不同的角色，更新当前角色
+      if (optimalRole !== state.currentRole && !role) {
+        setState((prev) => ({ ...prev, currentRole: optimalRole }))
+      }
 
       const userMessage: AIMessage = {
         role: "user",
@@ -116,18 +138,20 @@ export function useAIXiaoyu() {
       setState((prev) => ({ ...prev, isProcessing: true }))
 
       try {
-        // 分析问题复杂度，决定是否需要角色协同
-        const { complexity, involvedRoles } = analyzeQueryComplexity(content)
+        // 生成个性化回应
+        const personalizedResponse = generatePersonalizedResponse(content, optimalRole, emotionAnalysis)
 
         const response = await fetch("/api/ai/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: content,
-            role: currentRole,
+            role: optimalRole,
+            systemPrompt: COMPLETE_AI_ROLES[optimalRole]?.systemPrompt,
+            personality: COMPLETE_AI_ROLES[optimalRole]?.personality,
+            emotionAnalysis,
+            personalizedResponse,
             history: messages.slice(-6),
-            complexity,
-            involvedRoles,
           }),
         })
 
@@ -147,7 +171,7 @@ export function useAIXiaoyu() {
               role: "assistant",
               content: "",
               timestamp: new Date(),
-              aiRole: currentRole,
+              aiRole: optimalRole,
             },
           ])
 
@@ -201,7 +225,7 @@ export function useAIXiaoyu() {
             role: "assistant",
             content: "抱歉，我遇到了一些问题。请稍后再试。",
             timestamp: new Date(),
-            aiRole: currentRole,
+            aiRole: optimalRole,
           },
         ])
       } finally {
@@ -211,27 +235,22 @@ export function useAIXiaoyu() {
     [messages, voiceSystem, state.currentRole],
   )
 
-  // 语音播报文本
+  // 语音播报文本 - 完全禁用以避免声音干扰
   const speakText = useCallback(
     async (text: string, useRoleVoice = true) => {
-      if (!voiceSystem) return
-
-      if (useRoleVoice) {
-        const roleConfig = AI_ROLES[state.currentRole]
-        await voiceSystem.speakWithRole(text, roleConfig.voiceStyle)
-      } else {
-        await voiceSystem.speak(text)
-      }
+      // 永久禁用所有语音播报功能 - 避免产生啸叫声和AI声音
+      console.log(`[useAIXiaoyu] 语音播报已禁用: ${text.substring(0, 20)}...`)
+      return
     },
-    [voiceSystem, state.currentRole],
+    []
   )
 
-  // 停止语音播报
+  // 停止语音播报 - 完全禁用以避免声音干扰
   const stopSpeaking = useCallback(() => {
-    if (voiceSystem) {
-      voiceSystem.stopSpeaking()
-    }
-  }, [voiceSystem])
+    // 永久禁用所有语音停止功能 - 避免产生啸叫声和AI声音
+    console.log("[useAIXiaoyu] 语音停止已禁用")
+    return
+  }, [])
 
   // 清空对话历史
   const clearMessages = useCallback(() => {
@@ -253,7 +272,9 @@ export function useAIXiaoyu() {
     startWakeWordListening,
     stopWakeWordListening,
     setCurrentRole,
+    switchRole,
     sendMessage,
+    addMessage,
     speakText,
     stopSpeaking,
     clearMessages,

@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import Navigation from "@/components/Navigation"
 import PageHeader from "@/components/headers/PageHeader"
 import ChildSelector from "@/components/ChildSelector"
 import { useChildren } from "@/hooks/useChildren"
+import SmartHomeworkHelper from "@/components/homework/SmartHomeworkHelper"
 
 type HomeworkStatus = "pending" | "done" | "review"
 
@@ -49,9 +50,16 @@ const homeworkData: Homework[] = [
 
 export default function HomeworkPage() {
   const [filter, setFilter] = useState<HomeworkStatus>("pending")
+  const [activeHomeworkId, setActiveHomeworkId] = useState<string | null>(null)
   const { currentChild } = useChildren()
 
   const filteredHomework = homeworkData.filter((hw) => hw.status === filter)
+
+  const handleHomeworkComplete = (homeworkId: string, results: any[]) => {
+    console.log(`作业 ${homeworkId} 已完成，批改结果:`, results)
+    setActiveHomeworkId(null)
+    // Here you would normally update the homework status in your database
+  }
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative bg-sky-100">
@@ -74,7 +82,7 @@ export default function HomeworkPage() {
               <div className="flex-1">
                 <h3 className="font-bold text-slate-800">{currentChild.name}的作业</h3>
                 <p className="text-sm text-slate-500">
-                  {currentChild.age_years || 0}岁{currentChild.age_months || 0}个月
+                  {(currentChild as any).age_years || 0}岁{(currentChild as any).age_months || 0}个月
                 </p>
               </div>
               <ChildSelector />
@@ -111,19 +119,72 @@ export default function HomeworkPage() {
           {/* 作业列表 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredHomework.map((hw, index) => (
-              <HomeworkCard key={hw.id} homework={hw} index={index} />
+              <HomeworkCard
+                key={hw.id}
+                homework={hw}
+                index={index}
+                onStartHomework={setActiveHomeworkId}
+              />
             ))}
           </div>
         </section>
       </main>
+
+      {/* Smart Homework Helper Modal */}
+      <AnimatePresence>
+        {activeHomeworkId && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveHomeworkId(null)}
+          >
+            <motion.div
+              className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-slate-800">AI智能作业助手</h2>
+                <button
+                  onClick={() => setActiveHomeworkId(null)}
+                  className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition"
+                >
+                  <i className="ri-close-line text-slate-600" />
+                </button>
+              </div>
+
+              <div className="p-4">
+                <SmartHomeworkHelper
+                  homeworkId={activeHomeworkId}
+                  subject={homeworkData.find(hw => hw.id === activeHomeworkId)?.subject || ""}
+                  title={homeworkData.find(hw => hw.id === activeHomeworkId)?.title || ""}
+                  onHomeworkComplete={(results) => handleHomeworkComplete(activeHomeworkId, results)}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Navigation />
     </div>
   )
 }
 
-function HomeworkCard({ homework, index }: { homework: Homework; index: number }) {
-  const subjectColors = {
+function HomeworkCard({
+  homework,
+  index,
+  onStartHomework
+}: {
+  homework: Homework;
+  index: number;
+  onStartHomework: (homeworkId: string) => void
+}) {
+  const subjectColors: { [key: string]: string } = {
     语文: "bg-yellow-100 text-yellow-700",
     数学: "bg-blue-100 text-blue-700",
     英语: "bg-green-100 text-green-700",
@@ -131,7 +192,7 @@ function HomeworkCard({ homework, index }: { homework: Homework; index: number }
 
   return (
     <motion.div
-      className="bg-white rounded-3xl p-6 shadow-soft hover:shadow-lg transition-all cursor-pointer flex flex-col gap-4"
+      className="bg-white rounded-3xl p-6 shadow-soft hover:shadow-lg transition-all flex flex-col gap-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -174,8 +235,20 @@ function HomeworkCard({ homework, index }: { homework: Homework; index: number }
         }`}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
+        onClick={() => onStartHomework(homework.id)}
+        disabled={homework.status === "done"}
       >
-        {homework.status === "done" ? "已完成 ✓" : "开始做题"}
+        {homework.status === "done" ? (
+          <>
+            <i className="ri-check-line mr-2" />
+            已完成 ✓
+          </>
+        ) : (
+          <>
+            <i className="ri-robot-fill mr-2" />
+            AI辅助做题
+          </>
+        )}
       </motion.button>
     </motion.div>
   )

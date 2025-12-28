@@ -341,27 +341,30 @@ export class VoiceInteractionSystem {
   }
 
   private playWakeSound(): void {
-    if (typeof window === "undefined") return
+    // 永久禁用唤醒音效 - 避免产生鸣叫声干扰用户体验
+    console.log("唤醒音效已禁用 - 避免鸣叫声")
+    return
 
-    try {
-      const audioContext = new AudioContext()
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
+    // 以下代码已永久禁用以避免AudioContext产生的800-1000Hz鸣叫声
+    // try {
+    //   const audioContext = new AudioContext()
+    //   const oscillator = audioContext.createOscillator()
+    //   const gainNode = audioContext.createGain()
 
-      oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
+    //   oscillator.connect(gainNode)
+    //   gainNode.connect(audioContext.destination)
 
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
-      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1)
+    //   oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+    //   oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1)
 
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
+    //   gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+    //   gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
 
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 0.2)
-    } catch {
-      // 静默处理音效播放失败
-    }
+    //   oscillator.start(audioContext.currentTime)
+    //   oscillator.stop(audioContext.currentTime + 0.2)
+    // } catch {
+    //   // 静默处理音效播放失败
+    // }
   }
 
   async speakWithRole(

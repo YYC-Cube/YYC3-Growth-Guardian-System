@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db/client"
+import { reportError } from "@/lib/global-error-handler"
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data: records, success: true })
   } catch (error) {
-    console.error("[v0] Error fetching growth records:", error)
+    reportError(error as Error, { component: 'GrowthRecordsAPI', action: 'fetchGrowthRecords', endpoint: '/api/growth-records' })
     return NextResponse.json({ error: "Failed to fetch growth records", success: false }, { status: 500 })
   }
 }
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     const newRecord = await db.create("growth_records", body)
     return NextResponse.json({ data: newRecord, success: true }, { status: 201 })
   } catch (error) {
-    console.error("[v0] Error creating growth record:", error)
+    reportError(error as Error, { component: 'GrowthRecordsAPI', action: 'createGrowthRecord', endpoint: '/api/growth-records' })
     return NextResponse.json({ error: "Failed to create growth record", success: false }, { status: 500 })
   }
 }

@@ -50,7 +50,7 @@ export default function VideosPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50 pb-24">
-      <PageHeader title="AI视频工坊" subtitle="将美好回忆变成精彩视频" />
+      <PageHeader title="AI视频工坊" subtitle="将美好回忆变成精彩视频" showBack />
 
       <div className="px-4 space-y-6">
         {/* 顶部操作栏 */}

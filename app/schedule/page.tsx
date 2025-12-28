@@ -30,8 +30,8 @@ export default function SchedulePage() {
 
   const { currentChild } = useChildren()
   const {
-    schedules,
-    isLoading,
+    schedules: _schedules,
+    isLoading: _isLoading,
     addSchedule,
     updateSchedule,
     deleteSchedule,
@@ -82,7 +82,7 @@ export default function SchedulePage() {
     setShowAIGenerator(false)
   }
 
-  const formatTime = (date: Date) => {
+  const _formatTime = (date: Date) => {
     return new Date(date).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })
   }
 
@@ -189,7 +189,7 @@ export default function SchedulePage() {
           </motion.button>
         </div>
 
-        {isLoading ? (
+        {_isLoading ? (
           <div className="flex items-center justify-center py-12">
             <motion.div
               className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full"
@@ -339,7 +339,6 @@ function DayView({
 
 function TimelineView({
   schedules,
-  onToggleComplete,
   onEdit,
   onDelete,
 }: {

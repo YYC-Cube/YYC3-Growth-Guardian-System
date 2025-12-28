@@ -63,7 +63,7 @@ export default function CoursesPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative bg-sky-100">
-      <PageHeader icon="ri-macbook-fill" title="我的公益课程">
+      <PageHeader icon="ri-macbook-fill" title="我的公益课程" showBack>
         <div className="relative w-1/3 max-w-xs hidden md:block">
           <input
             type="text"
@@ -113,7 +113,7 @@ export default function CoursesPage() {
 }
 
 function CourseCard({ course, index }: { course: Course; index: number }) {
-  const categoryColors = {
+  const categoryColors: { [key: string]: string } = {
     语文: "bg-white border-green-200",
     科学: "bg-macaron-purple",
     素质拓展: "bg-macaron-yellow",

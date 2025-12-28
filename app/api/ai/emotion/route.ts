@@ -2,6 +2,8 @@
 
 export const runtime = "edge"
 
+import { reportError } from "@/lib/global-error-handler"
+
 interface EmotionAnalysisRequest {
   text: string
   includeAdvice?: boolean
@@ -110,7 +112,7 @@ export async function POST(request: Request) {
 
     return Response.json(response)
   } catch (error) {
-    console.error("[v0] 情感分析错误:", error)
+    reportError(error as Error, { component: 'EmotionAnalysisAPI', action: 'analyzeEmotion', endpoint: '/api/ai/emotion' })
     return new Response(JSON.stringify({ error: "情感分析失败" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

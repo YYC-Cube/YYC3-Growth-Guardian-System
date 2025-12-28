@@ -8,6 +8,7 @@ const navItems = [
   { id: "home", icon: "ri-home-smile-2-fill", label: "首页", href: "/" },
   { id: "videos", icon: "ri-video-fill", label: "视频", href: "/videos" },
   { id: "books", icon: "ri-book-3-fill", label: "绘本", href: "/books" },
+  { id: "short-drama", icon: "ri-movie-2-fill", label: "短剧", href: "/ai-creative", badge: true },
   { id: "creative", icon: "ri-palette-fill", label: "创作", href: "/ai-creative" },
   { id: "curriculum", icon: "ri-calendar-todo-fill", label: "课表", href: "/curriculum" },
   { id: "growth", icon: "ri-trophy-fill", label: "成长", href: "/growth" },

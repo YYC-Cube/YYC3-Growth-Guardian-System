@@ -9,11 +9,14 @@ import ChildSelector from "@/components/ChildSelector"
 import { useAuth } from "@/hooks/useAuth"
 import { useChildren } from "@/hooks/useChildren"
 import { db } from "@/lib/db/client"
+import { getCharacterForUser, characterManager } from "@/lib/character-manager"
 
 export default function HomePage() {
   const { user, isAuthenticated } = useAuth()
   const { currentChild, children } = useChildren()
   const [stats, setStats] = useState({ records: 0, milestones: 0, assessments: 0 })
+  const [characterImagePath, setCharacterImagePath] = useState("")
+  const [currentCharacter, setCurrentCharacter] = useState<any>(null)
 
   useEffect(() => {
     const loadStats = async () => {
@@ -26,6 +29,29 @@ export default function HomePage() {
       setStats({ records, milestones, assessments })
     }
     loadStats()
+  }, [currentChild])
+
+  // 根据用户性别更新角色图片
+  useEffect(() => {
+    const updateCharacter = () => {
+      if (currentChild) {
+        const character = getCharacterForUser(currentChild)
+        const imagePath = characterManager.getCharacterImagePath(character, 'happy')
+        setCharacterImagePath(imagePath)
+        setCurrentCharacter(character)
+      } else {
+        // 默认显示女性角色（小语）
+        const character = getCharacterForUser(null)
+        const imagePath = characterManager.getCharacterImagePath(character, 'happy')
+        setCharacterImagePath(imagePath)
+        setCurrentCharacter(character)
+      }
+    }
+
+    updateCharacter()
+
+    // 预加载角色图片
+    characterManager.preloadCharacterImages().catch(console.warn)
   }, [currentChild])
 
   return (
@@ -87,14 +113,22 @@ export default function HomePage() {
             {/* Q版角色 + 柴犬 */}
             <div className="relative w-full flex-grow flex items-center justify-center max-h-[50vh]">
               <div className="w-full h-full relative">
-                <motion.img
-                  src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/d8b940bc6b0041be97f338c7685d7741~tplv-a9rns2rl98-image.image?rcl=2025112122150088900C1BBD9ED5A8735F&rk3s=8e244e95&rrcfp=e75484ac&x-expires=1764339301&x-signature=QOEcLC%2BZl8azmtFHns3rp1ihyzc%3D"
-                  alt="3D卡通男孩形象"
-                  className="w-full h-full object-contain"
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.8, ease: "backOut" }}
-                />
+                {characterImagePath ? (
+                  <motion.img
+                    src={characterImagePath}
+                    alt={currentCharacter?.name || "小语"}
+                    className="w-full h-full object-contain"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.8, ease: "backOut" }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-8xl animate-pulse">
+                      {currentChild?.gender === 'male' ? '👦' : '👧'}
+                    </div>
+                  </div>
+                )}
                 <motion.div
                   className="absolute bottom-10 right-10 text-6xl cursor-pointer"
                   title="摸摸头"
