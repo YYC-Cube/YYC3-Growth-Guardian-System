@@ -32,7 +32,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.0.2",
     "@emotion/is-prop-valid": "latest",
-    "@hono/node-server": "^1.19.7",
+    "@hono/node-server": "^2.0.9",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -81,7 +81,7 @@
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.454.0",
-    "next": "^14.2.35",
+    "next": "^16.2.10",
     "next-intl": "^4.6.1",
     "next-themes": "^0.4.6",
     "openai": "^4.67.1",
@@ -111,7 +111,7 @@
     "swr": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "uuid": "^10.0.0",
+    "uuid": "^14.0.1",
     "vaul": "^1.1.2",
     "ws": "^8.18.0",
     "zod": "3.25.76"
